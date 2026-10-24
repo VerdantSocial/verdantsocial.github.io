@@ -202,99 +202,93 @@
               <span>Username</span>
               <input id="signinUsername" type="text" name="username" placeholder="@yourname" />
             </label>
-
             <label>
               <span>Password</span>
-              <input id="signinPassword" type="password" name="password" placeholder="Enter your password" />
+              <input id="signinPassword" type="password" name="password" placeholder="••••••••" />
             </label>
-
             <button class="primary-btn full-width" type="submit">Sign in</button>
           </form>
 
-          <button class="secondary-btn full-width" type="button" data-action="github-signin">Sign in with GitHub</button>
+          <button class="ghost-btn full-width github-btn" type="button" data-action="github-signin">
+            Sign in with GitHub
+          </button>
         </section>
 
         <section id="signupPanel" class="auth-panel">
           <h2>Create your account</h2>
+
           <form id="signupForm" class="stack-form">
             <label>
               <span>Display name</span>
-              <input id="signupDisplayName" type="text" name="displayName" placeholder="Your name" maxlength="64" required />
+              <input id="signupDisplayName" type="text" name="displayName" placeholder="Your name" />
             </label>
-
             <label>
               <span>Username</span>
-              <input id="signupUsername" type="text" name="username" placeholder="yourname" maxlength="32" required />
+              <input id="signupUsername" type="text" name="username" placeholder="@yourname" />
             </label>
-
             <label>
               <span>About me</span>
-              <textarea id="signupBio" name="bio" rows="3" maxlength="220" placeholder="Tell the community about you."></textarea>
+              <textarea id="signupBio" name="bio" rows="3" placeholder="A short bio"></textarea>
             </label>
-
             <label>
               <span>Website</span>
               <input id="signupWebsite" type="url" name="website" placeholder="https://example.com" />
             </label>
-
             <label>
               <span>Favorite game</span>
-              <input id="signupFavoriteGame" type="text" name="favoriteGame" maxlength="60" placeholder="Minecraft, Valorant, etc." />
+              <input id="signupFavoriteGame" type="text" name="favoriteGame" placeholder="Minecraft" />
             </label>
-
             <label>
               <span>Profile picture URL</span>
-              <input id="signupProfilePicture" type="url" name="profileImage" placeholder="https://..." />
+              <input id="signupProfilePicture" type="url" name="profilePicture" placeholder="https://..." />
             </label>
-
             <label>
               <span>Cover photo URL</span>
               <input id="signupCoverPhoto" type="url" name="coverPhoto" placeholder="https://..." />
             </label>
-
             <label>
               <span>Password</span>
-              <input id="signupPassword" type="password" name="password" placeholder="Choose a secure password" required />
+              <input id="signupPassword" type="password" name="password" placeholder="••••••••" />
             </label>
-
             <button class="primary-btn full-width" type="submit">Create account</button>
           </form>
         </section>
       </div>
     </div>
 
-    <div id="postModal" class="modal-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="postModalTitle">
+    <div id="postModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="postDetailTitle">
       <div class="modal-card post-card">
         <div class="modal-header">
-          <h2 id="postModalTitle">Leaf detail</h2>
-          <button class="close-btn" type="button" data-action="close-post" aria-label="Close leaf detail">×</button>
+          <h2 id="postDetailTitle">Leaf detail</h2>
+          <button class="close-btn" type="button" data-action="close-post">×</button>
         </div>
         <div id="postDetailBody"></div>
       </div>
     </div>
 
-    <div id="adminModal" class="modal-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="adminTitle">
+    <div id="adminModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
       <div class="modal-card admin-card">
         <div class="modal-header">
           <h2 id="adminTitle">Staff backend</h2>
-          <button class="close-btn" type="button" data-action="close-admin" aria-label="Close admin">×</button>
+          <button class="close-btn" type="button" data-action="close-admin">×</button>
         </div>
 
-        <form id="adminLoginForm" class="stack-form">
+        <form id="adminLoginForm" class="admin-login-form">
           <label>
             <span>Username</span>
-            <input id="adminUsername" type="text" placeholder="staff username" />
+            <input id="adminUsername" type="text" placeholder="admin user" />
           </label>
-
           <label>
             <span>Password</span>
-            <input id="adminPassword" type="password" placeholder="staff password" />
+            <input id="adminPassword" type="password" placeholder="••••••••" />
           </label>
-
           <button class="primary-btn full-width" type="submit">Open admin panel</button>
         </form>
 
         <div id="adminPanel" class="admin-panel hidden">
+          <div class="panel-header">
+            <h3>Member controls</h3>
+          </div>
           <div id="adminUserList"></div>
         </div>
       </div>
@@ -302,6 +296,7 @@
 
     <div id="toast" class="toast" aria-live="polite"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
   </body>
 </html>
