@@ -1,654 +1,850 @@
-const state = {
-  currentUser: null,
-  activeView: "feed",
-  selectedProfile: "maya",
-  selectedPost: null,
-  replyTarget: null,
-  adminLoggedIn: false,
-  following: new Set(["verdantofficial", "maya"]),
-  users: [
-    {
-      id: "maya",
-      name: "Maya Reed",
-      handle: "@maya",
-      bio: "Mapping out bright ideas and plant-powered business circles.",
-      followers: 1205,
-      following: 332,
-      official: false,
-      banned: false,
-      avatar: "M",
-    },
-    {
-      id: "verdantofficial",
-      name: "Verdant Official",
-      handle: "@verdantofficial",
-      bio: "Open-source social features, wellness culture, and green product updates.",
-      followers: 12840,
-      following: 432,
-      official: true,
-      banned: false,
-      avatar: "V",
-    },
-    {
-      id: "aribloom",
-      name: "Ari Bloom",
-      handle: "@aribloom",
-      bio: "Landscape designer turning tiny ideas into big green futures.",
-      followers: 980,
-      following: 287,
-      official: false,
-      banned: false,
-      avatar: "A",
-    },
-    {
-      id: "leafcrew",
-      name: "Leaf Crew",
-      handle: "@leafcrew",
-      bio: "Monthly community sessions and stories for sustainable creators.",
-      followers: 2350,
-      following: 601,
-      official: false,
-      banned: false,
-      avatar: "L",
-    },
-  ],
-  posts: [
-    {
-      id: "leaf-1",
-      authorId: "maya",
-      content:
-        "Our open-source community grows when we share the small wins. A good idea can bloom in a single thread. 🌱",
-      likes: 182,
-      shares: 27,
-      replies: 4,
-      liked: true,
-      createdAt: "2h ago",
-    },
-    {
-      id: "leaf-2",
-      authorId: "verdantofficial",
-      content:
-        "Verdant launch checklist is live. We are building accessible tools for connected, green communities.",
-      likes: 451,
-      shares: 94,
-      replies: 22,
-      liked: false,
-      createdAt: "5h ago",
-    },
-    {
-      id: "leaf-3",
-      authorId: "aribloom",
-      content:
-        "Tiny urban gardens are proof that every patch of soil can become a story of care, growth, and resilience.",
-      likes: 106,
-      shares: 31,
-      replies: 9,
-      liked: false,
-      createdAt: "1d ago",
-    },
-  ],
-};
-
-const adminCredentials = {
-  username: "verdantadmin",
-  password: "verdantstaff2024",
-};
-
-const $ = (selector) => document.querySelector(selector);
-
-function getUserById(userId) {
-  return state.users.find((user) => user.id === userId) || state.currentUser;
+:root {
+  --bg: #f3f2ed;
+  --bg-alt: #ece8e0;
+  --panel: #ffffff;
+  --panel-soft: #f7f6f2;
+  --panel-deep: #ece8df;
+  --text: #1d2a22;
+  --text-soft: #586960;
+  --verdant: #2d7a59;
+  --verdant-strong: #1f5e43;
+  --verdant-soft: rgba(45, 122, 89, 0.12);
+  --leaf: #7ec59d;
+  --gold: #c79a34;
+  --gold-soft: rgba(199, 154, 52, 0.12);
+  --line: rgba(30, 58, 44, 0.1);
+  --danger: #b64b48;
+  --shadow: 0 18px 42px rgba(30, 42, 34, 0.08);
+  --radius: 24px;
 }
 
-function isVerified(user) {
-  return !!user && (user.official || user.followers >= 1000);
+* {
+  box-sizing: border-box;
 }
 
-function getVerificationMarkup(user) {
-  if (!user) return "";
-  if (user.official) {
-    return '<span class="verification-badge official"><span class="leaf-icon"></span>Official</span>';
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: Inter, "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, var(--bg-alt) 0%, #f7f6f3 100%);
+  color: var(--text);
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 30px 20px;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+textarea,
+input {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--text);
+  padding: 12px 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+  border-color: rgba(45, 122, 89, 0.4);
+  box-shadow: 0 0 0 4px rgba(45, 122, 89, 0.08);
+}
+
+.app-shell {
+  width: min(1440px, 100%);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(27, 46, 37, 0.08);
+  border-radius: 28px;
+  padding: 16px 20px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 18px;
+  z-index: 10;
+}
+
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-kicker {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--verdant-strong);
+  margin: 0;
+}
+
+.brand-wrap strong {
+  font-size: 1.2rem;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(126, 197, 157, 0.18), rgba(45, 122, 89, 0.2));
+  border: 1px solid rgba(45, 122, 89, 0.2);
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-mark.small-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+}
+
+.brand-mark-inner {
+  width: 18px;
+  height: 20px;
+  display: block;
+  background: linear-gradient(180deg, var(--leaf), var(--verdant));
+  clip-path: polygon(44% 0%, 92% 16%, 76% 100%, 18% 100%, 8% 34%);
+  transform: rotate(-14deg);
+  opacity: 0.95;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-btn,
+.primary-btn,
+.ghost-btn,
+.secondary-btn,
+.danger-btn,
+.token-btn,
+.action-button,
+.inline-button,
+.auth-tab {
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: 0.2s ease;
+}
+
+.nav-btn {
+  background: transparent;
+  color: var(--text-soft);
+  border-color: transparent;
+  padding: 10px 14px;
+  font-weight: 600;
+}
+
+.nav-btn.active {
+  background: rgba(45, 122, 89, 0.08);
+  color: var(--verdant-strong);
+  border-color: rgba(45, 122, 89, 0.14);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.primary-btn,
+.secondary-btn,
+.ghost-btn,
+.danger-btn,
+.inline-button,
+.action-button {
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.primary-btn {
+  background: linear-gradient(180deg, var(--verdant), var(--verdant-strong));
+  color: white;
+  border-color: rgba(31, 94, 67, 0.15);
+}
+
+.ghost-btn,
+.secondary-btn,
+.action-button,
+.inline-button,
+.auth-tab {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.danger-btn {
+  background: rgba(182, 75, 72, 0.08);
+  border-color: rgba(182, 75, 72, 0.24);
+  color: var(--danger);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 300px;
+  gap: 22px;
+  margin-top: 24px;
+}
+
+.sidebar,
+.panel-card,
+.composer-card,
+.profile-header,
+.post-card,
+.leaf-card,
+.side-panel {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(27, 46, 37, 0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.sidebar {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-self: start;
+}
+
+.profile-preview-card,
+.side-panel {
+  padding: 18px;
+}
+
+.profile-mini {
+  display: grid;
+  gap: 14px;
+}
+
+.profile-topline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--verdant), var(--leaf));
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+}
+
+.avatar.small {
+  width: 42px;
+  height: 42px;
+  font-size: 0.9rem;
+}
+
+.avatar img,
+.profile-cover img,
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-cover {
+  width: 100%;
+  height: 120px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(126, 197, 157, 0.24), rgba(45, 122, 89, 0.34));
+  border: 1px solid rgba(45, 122, 89, 0.1);
+}
+
+.profile-mini-meta h3,
+.profile-heading h3,
+.post-author-meta h3,
+.profile-card h3,
+.panel-heading h2,
+.composer-header h2,
+.modal-card h2,
+.account-form h2 {
+  margin: 0;
+}
+
+.section-label {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.68rem;
+  color: var(--verdant-strong);
+  font-weight: 700;
+}
+
+.profile-mini-meta {
+  display: grid;
+  gap: 4px;
+}
+
+.handle-text,
+.meta-line,
+.muted {
+  color: var(--text-soft);
+}
+
+.verification-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.verification-badge.official {
+  background: var(--gold-soft);
+  border: 1px solid rgba(199, 154, 52, 0.28);
+  color: var(--gold);
+}
+
+.verification-badge.standard {
+  background: rgba(45, 122, 89, 0.08);
+  border: 1px solid rgba(45, 122, 89, 0.14);
+  color: var(--verdant-strong);
+}
+
+.leaf-icon {
+  display: inline-block;
+  width: 10px;
+  height: 12px;
+  background: currentColor;
+  clip-path: polygon(50% 0%, 100% 18%, 82% 100%, 18% 100%, 0% 18%);
+  transform: rotate(-10deg);
+}
+
+.trend-list,
+.mini-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  color: var(--text-soft);
+}
+
+.trend-list li,
+.mini-list li {
+  background: rgba(247, 246, 242, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 12px;
+}
+
+.center-column {
+  min-width: 0;
+}
+
+.view-panel {
+  display: none;
+}
+
+.view-panel.active {
+  display: block;
+}
+
+.composer-card,
+.panel-card {
+  padding: 18px;
+}
+
+.composer-header,
+.panel-heading,
+.profile-header-top,
+.profile-meta-row,
+.user-row,
+.post-header,
+.detail-meta,
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.composer-header {
+  justify-content: flex-start;
+  margin-bottom: 14px;
+}
+
+#leafComposer {
+  width: 100%;
+  background: rgba(247, 246, 242, 0.9);
+  resize: vertical;
+  min-height: 110px;
+  border-radius: 16px;
+}
+
+.composer-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+
+.token-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.token-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text);
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.feed-container,
+.discover-list {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.leaf-card {
+  padding: 18px;
+}
+
+.post-header {
+  justify-content: flex-start;
+}
+
+.post-author-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.post-author-meta h3,
+.profile-card h3 {
+  font-size: 1.08rem;
+}
+
+.post-author-meta p,
+.profile-bio,
+.muted {
+  margin: 0;
+  color: var(--text-soft);
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.post-body {
+  margin: 16px 0;
+  line-height: 1.7;
+  color: #1c2c25;
+}
+
+.post-body .token {
+  display: inline-block;
+  background: rgba(45, 122, 89, 0.08);
+  color: var(--verdant-strong);
+  border-radius: 7px;
+  padding: 0 5px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 12px;
+}
+
+.action-button.is-active {
+  background: rgba(45, 122, 89, 0.08);
+  border-color: rgba(45, 122, 89, 0.16);
+  color: var(--verdant-strong);
+}
+
+.profile-header {
+  overflow: hidden;
+}
+
+.profile-cover {
+  height: 180px;
+  border-radius: 0;
+  border: none;
+}
+
+.profile-header-body {
+  padding: 0 20px 20px;
+}
+
+.profile-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: -34px;
+}
+
+.profile-picture-large {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.92);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--verdant), var(--leaf));
+  box-shadow: 0 12px 30px rgba(45, 122, 89, 0.18);
+}
+
+.profile-card {
+  padding: 18px;
+  margin-top: 18px;
+}
+
+.profile-bio-block {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.profile-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.meta-item {
+  background: rgba(247, 246, 242, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.meta-item span {
+  display: block;
+  color: var(--text-soft);
+  font-size: 0.73rem;
+  margin-bottom: 4px;
+}
+
+.meta-item strong a {
+  color: var(--verdant-strong);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.profile-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.user-row {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.user-row:first-child {
+  border-top: none;
+}
+
+.verified-list,
+.discover-list {
+  display: grid;
+  gap: 12px;
+}
+
+.verified-item,
+.discover-entity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(247, 246, 242, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.verified-item strong,
+.discover-entity strong {
+  display: block;
+}
+
+.verified-item small,
+.discover-entity small {
+  color: var(--text-soft);
+}
+
+.empty-state {
+  background: rgba(247, 246, 242, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  color: var(--text-soft);
+  text-align: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 28, 23, 0.42);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: 30;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-card {
+  width: min(560px, calc(100% - 28px));
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(27, 46, 37, 0.08);
+  border-radius: 30px;
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.post-card {
+  width: min(720px, calc(100% - 28px));
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.brand-panel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--verdant-strong);
+}
+
+.close-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(247, 246, 242, 0.8);
+  color: var(--text);
+  font-size: 1.2rem;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  background: rgba(247, 246, 242, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 6px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px 12px;
+}
+
+.auth-tab.active {
+  background: rgba(45, 122, 89, 0.08);
+  border-color: rgba(45, 122, 89, 0.14);
+  color: var(--verdant-strong);
+}
+
+.auth-panel {
+  display: none;
+}
+
+.auth-panel.active {
+  display: block;
+}
+
+.stack-form,
+.account-form {
+  display: grid;
+  gap: 16px;
+}
+
+.account-form label,
+.stack-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--text-soft);
+}
+
+.form-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-panel {
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.admin-panel.hidden {
+  display: none;
+}
+
+.admin-user {
+  background: rgba(247, 246, 242, 0.9);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.toast {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  background: rgba(29, 42, 34, 0.95);
+  color: white;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: 0.2s ease;
+  z-index: 50;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 1100px) {
+  .layout-grid {
+    grid-template-columns: 1fr;
   }
-  if (user.followers >= 1000) {
-    return '<span class="verification-badge"><span class="leaf-icon"></span>Verified</span>';
-  }
-  return "";
-}
 
-function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 2200);
-}
-
-function setView(viewName) {
-  state.activeView = viewName;
-  document.querySelectorAll(".nav-btn").forEach((button) => {
-    button.classList.toggle("active", button.dataset.view === viewName);
-  });
-  document.querySelectorAll(".view-panel").forEach((panel) => {
-    panel.classList.toggle("active", panel.id === `${viewName}View`);
-  });
-
-  if (viewName === "profile") {
-    renderProfile();
+  .topbar {
+    flex-wrap: wrap;
   }
 
-  if (viewName === "feed") {
-    renderFeed();
-  }
-
-  if (viewName === "account") {
-    renderAccount();
+  .main-nav {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
   }
 }
 
-function renderFeed() {
-  const feedContainer = document.getElementById("feedContainer");
-  feedContainer.innerHTML = state.posts
-    .map((post) => {
-      const author = getUserById(post.authorId);
-      const authorVerified = getVerificationMarkup(author);
-      const liked = post.liked ? "active" : "";
-      const following = state.following.has(author.id) ? "Following" : "Follow";
-      return `
-        <article class="leaf-card" data-id="${post.id}">
-          <div class="leaf-header">
-            <div class="avatar">${author.avatar}</div>
-            <div class="user-meta">
-              <div class="meta-line">
-                <h3>${author.name}</h3>
-                ${authorVerified}
-              </div>
-              <p>${author.handle} • ${post.createdAt}</p>
-            </div>
-            <button class="ghost-btn small" type="button" data-action="toggle-follow" data-user-id="${author.id}">${following}</button>
-          </div>
-
-          <div class="content-body">${post.content}</div>
-
-          <div class="leaf-toolbar">
-            <button class="action-btn ${liked}" type="button" data-action="like-post" data-post-id="${post.id}">❤ ${post.likes}</button>
-            <button class="action-btn" type="button" data-action="reply-post" data-post-id="${post.id}">↩ ${post.replies}</button>
-            <button class="action-btn" type="button" data-action="share-post" data-post-id="${post.id}">↗ ${post.shares}</button>
-            <button class="action-btn" type="button" data-action="open-post" data-post-id="${post.id}">Open Leaf</button>
-          </div>
-        </article>
-      `;
-    })
-    .join("");
-}
-
-function renderProfile() {
-  const profileContainer = document.getElementById("profileContainer");
-  const user = getUserById(state.selectedProfile || state.currentUser?.id || "maya");
-  const userPosts = state.posts.filter((post) => post.authorId === user.id);
-  const following = state.following.has(user.id);
-
-  profileContainer.innerHTML = `
-    <div class="profile-header">
-      <div class="profile-top">
-        <div class="avatar large">${user.avatar}</div>
-        <div class="user-meta">
-          <div class="meta-line">
-            <h3>${user.name}</h3>
-            ${getVerificationMarkup(user)}
-          </div>
-          <p>${user.handle}</p>
-          <p class="profile-details">${user.bio}</p>
-        </div>
-      </div>
-
-      <div class="profile-stats">
-        <div class="stat-pill"><strong>${user.followers}</strong><span>Followers</span></div>
-        <div class="stat-pill"><strong>${user.following}</strong><span>Following</span></div>
-        <div class="stat-pill"><strong>${userPosts.length}</strong><span>Leaves</span></div>
-      </div>
-
-      <div class="button-row">
-        <button class="primary-btn" type="button" data-action="toggle-follow" data-user-id="${user.id}">${following ? "Following" : "Follow"}</button>
-        <button class="ghost-btn" type="button" data-action="open-post" data-post-id="${userPosts[0]?.id || "leaf-1"}">View latest leaf</button>
-      </div>
-    </div>
-
-    <div class="profile-card" style="margin-top: 18px;">
-      <div class="card-heading">
-        <p class="eyebrow">Recent leaves</p>
-        <h3>${user.name}'s activity</h3>
-      </div>
-      <div style="margin-top: 16px; display: grid; gap: 12px;">
-        ${userPosts
-          .map(
-            (post) => `
-            <div class="user-row">
-              <div>
-                <h4>${user.name}</h4>
-                <p>${post.createdAt}</p>
-              </div>
-              <button class="ghost-btn" type="button" data-action="open-post" data-post-id="${post.id}">Open</button>
-            </div>
-          `
-          )
-          .join("") || '<p class="muted">No leaves yet.</p>'}
-      </div>
-    </div>
-  `;
-}
-
-function renderAccount() {
-  if (!state.currentUser) {
-    document.getElementById("accountForm").reset();
-    return;
+@media (max-width: 720px) {
+  body {
+    padding: 16px;
   }
 
-  const name = document.getElementById("accountName");
-  const handle = document.getElementById("accountHandle");
-  const bio = document.getElementById("accountBio");
-  const password = document.getElementById("accountPassword");
-
-  name.value = state.currentUser.name;
-  handle.value = state.currentUser.handle;
-  bio.value = state.currentUser.bio;
-  password.value = "";
-}
-
-function renderVerifiedUsers() {
-  const container = document.getElementById("verifiedUsers");
-  const verifiedList = state.users.filter((user) => isVerified(user));
-  container.innerHTML = `
-    <div class="verified-user-list">
-      ${verifiedList
-        .map(
-          (user) => `
-            <div class="user-chip">
-              <div class="user-meta">
-                <div class="meta-line">
-                  <strong>${user.name}</strong>
-                  ${getVerificationMarkup(user)}
-                </div>
-                <p>${user.handle}</p>
-              </div>
-              <button class="ghost-btn" type="button" data-action="open-profile" data-user-id="${user.id}">View</button>
-            </div>
-          `
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-function renderAdminUsers() {
-  const list = document.getElementById("adminUserList");
-  list.innerHTML = state.users
-    .map(
-      (user) => `
-        <div class="admin-user">
-          <div class="meta-line">
-            <strong>${user.name}</strong>
-            ${getVerificationMarkup(user)}
-          </div>
-          <p class="muted">${user.handle}</p>
-          <div class="admin-user-actions">
-            <button class="ghost-btn" type="button" data-action="ban-user" data-user-id="${user.id}">${user.banned ? "Unban" : "Ban"}</button>
-            <button class="primary-btn" type="button" data-action="toggle-verification" data-user-id="${user.id}">${user.official ? "Remove official" : "Make official"}</button>
-          </div>
-        </div>
-      `
-    )
-    .join("");
-}
-
-function openProfile(userId) {
-  state.selectedProfile = userId;
-  setView("profile");
-}
-
-function openPost(postId) {
-  const post = state.posts.find((item) => item.id === postId);
-  if (!post) return;
-
-  const author = getUserById(post.authorId);
-  const template = `
-    <div class="leaf-card">
-      <div class="leaf-header">
-        <div class="avatar">${author.avatar}</div>
-        <div class="user-meta">
-          <div class="meta-line">
-            <h3>${author.name}</h3>
-            ${getVerificationMarkup(author)}
-          </div>
-          <p>${author.handle} • ${post.createdAt}</p>
-        </div>
-      </div>
-      <div class="content-body">${post.content}</div>
-      <div class="leaf-toolbar">
-        <button class="action-btn ${post.liked ? "active" : ""}" type="button" data-action="like-post" data-post-id="${post.id}">❤ ${post.likes}</button>
-        <button class="action-btn" type="button" data-action="reply-post" data-post-id="${post.id}">↩ ${post.replies}</button>
-        <button class="action-btn" type="button" data-action="share-post" data-post-id="${post.id}">↗ ${post.shares}</button>
-      </div>
-      <div class="comment-box">Replying to ${author.handle} is ready from the feed composer.</div>
-    </div>
-  `;
-
-  document.getElementById("postDetailBody").innerHTML = template;
-  document.getElementById("postModal").classList.remove("hidden");
-  state.selectedPost = postId;
-}
-
-function closePostModal() {
-  document.getElementById("postModal").classList.add("hidden");
-}
-
-function openAuthModal() {
-  document.getElementById("authModal").classList.remove("hidden");
-}
-
-function closeAuthModal() {
-  document.getElementById("authModal").classList.add("hidden");
-}
-
-function openAdminModal() {
-  document.getElementById("adminModal").classList.remove("hidden");
-}
-
-function closeAdminModal() {
-  document.getElementById("adminModal").classList.add("hidden");
-}
-
-function saveAccount() {
-  const nameField = document.getElementById("accountName");
-  const handleField = document.getElementById("accountHandle");
-  const bioField = document.getElementById("accountBio");
-
-  if (!state.currentUser) {
-    showToast("Sign in before editing your account.");
-    openAuthModal();
-    return;
+  .two-col {
+    grid-template-columns: 1fr;
   }
 
-  state.currentUser.name = nameField.value.trim() || state.currentUser.name;
-  state.currentUser.handle = handleField.value.trim() || state.currentUser.handle;
-  state.currentUser.bio = bioField.value.trim() || state.currentUser.bio;
-
-  state.users = state.users.filter((user) => user.id !== state.currentUser.id);
-  state.users.unshift(state.currentUser);
-
-  renderFeed();
-  renderProfile();
-  renderVerifiedUsers();
-  renderAdminUsers();
-  showToast("Account updated.");
-}
-
-function deleteAccount() {
-  if (!state.currentUser) {
-    showToast("No active account to delete.");
-    return;
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 
-  const currentId = state.currentUser.id;
-  state.users = state.users.filter((user) => user.id !== currentId);
-  state.currentUser = null;
-  state.following.clear();
-  setView("feed");
-  openAuthModal();
-  showToast("Account deleted.");
-}
-
-function signInUser(nameValue, passwordValue) {
-  const username = String(nameValue || "").trim();
-  const password = String(passwordValue || "");
-
-  if (!username || !password) {
-    showToast("Please enter a username and password.");
-    return;
-  }
-
-  const newUser = {
-    id: `user-${Date.now()}`,
-    name: username,
-    handle: `@${username.toLowerCase().replace(/\s+/g, "")}`,
-    bio: "Freshly sprouting ideas and community stories.",
-    followers: 742,
-    following: 420,
-    official: false,
-    banned: false,
-    avatar: username.charAt(0).toUpperCase(),
-  };
-
-  state.currentUser = newUser;
-  state.users.unshift(newUser);
-  state.following.add(newUser.id);
-  state.selectedProfile = newUser.id;
-  closeAuthModal();
-  setView("feed");
-  renderVerifiedUsers();
-  showToast(`Welcome, ${newUser.name}!`);
-}
-
-function handleGithubSignIn() {
-  state.currentUser = {
-    id: "github-user",
-    name: "GitHub Angel",
-    handle: "@githubangel",
-    bio: "Open-source enthusiast cultivating collaborative tools.",
-    followers: 1542,
-    following: 436,
-    official: false,
-    banned: false,
-    avatar: "G",
-  };
-
-  state.users.unshift(state.currentUser);
-  state.following.add(state.currentUser.id);
-  state.selectedProfile = state.currentUser.id;
-  closeAuthModal();
-  setView("feed");
-  renderVerifiedUsers();
-  showToast("Signed in with GitHub.");
-}
-
-function toggleFollow(userId) {
-  if (!state.currentUser) {
-    openAuthModal();
-    showToast("Sign in to follow accounts.");
-    return;
-  }
-
-  const user = getUserById(userId);
-  const following = state.following.has(user.id);
-
-  if (following) {
-    state.following.delete(user.id);
-    if (user.followers > 0) user.followers = Math.max(0, user.followers - 1);
-  } else {
-    state.following.add(user.id);
-    user.followers += 1;
-  }
-
-  renderFeed();
-  renderProfile();
-  renderVerifiedUsers();
-}
-
-function handleLike(postId) {
-  const post = state.posts.find((item) => item.id === postId);
-  if (!post) return;
-
-  post.liked = !post.liked;
-  post.likes += post.liked ? 1 : -1;
-  renderFeed();
-  if (state.selectedPost === postId) openPost(postId);
-}
-
-function handleShare(postId) {
-  const post = state.posts.find((item) => item.id === postId);
-  if (!post) return;
-
-  post.shares += 1;
-  const shareLink = `https://verdantsocial.example/leaf/${post.id}`;
-  navigator.clipboard?.writeText(shareLink).catch(() => {});
-  renderFeed();
-  showToast("Leaf link copied to clipboard.");
-}
-
-function handleReply(postId) {
-  const post = state.posts.find((item) => item.id === postId);
-  const author = getUserById(post.authorId);
-  const composer = document.getElementById("leafComposer");
-  const viewName = state.activeView;
-
-  state.replyTarget = postId;
-  composer.value = `Replying to ${author.handle}: `;
-  composer.focus();
-  setView(viewName === "account" ? "feed" : viewName);
-  showToast(`Replying to ${author.handle}.`);
-}
-
-function createLeaf() {
-  const composer = document.getElementById("leafComposer");
-  const content = composer.value.trim();
-
-  if (!content) {
-    showToast("Write a leaf before publishing.");
-    return;
-  }
-
-  if (!state.currentUser) {
-    openAuthModal();
-    showToast("Please sign in before posting.");
-    return;
-  }
-
-  const author = state.currentUser;
-  const newPost = {
-    id: `leaf-${Date.now()}`,
-    authorId: author.id,
-    content,
-    likes: 0,
-    shares: 0,
-    replies: 0,
-    liked: false,
-    createdAt: "just now",
-  };
-
-  state.posts.unshift(newPost);
-  composer.value = "";
-  state.replyTarget = null;
-  renderFeed();
-  if (state.activeView === "profile") {
-    renderProfile();
-  }
-  showToast("Your leaf is now live.");
-}
-
-function openAdminPanel() {
-  const username = document.getElementById("adminUsername").value.trim();
-  const password = document.getElementById("adminPassword").value;
-
-  if (username === adminCredentials.username && password === adminCredentials.password) {
-    state.adminLoggedIn = true;
-    document.getElementById("adminLoginForm").classList.add("hidden");
-    document.getElementById("adminPanel").classList.remove("hidden");
-    renderAdminUsers();
-    showToast("Welcome to the staff backend.");
-  } else {
-    showToast("Admin credentials are invalid.");
+  .profile-row {
+    align-items: center;
   }
 }
 
-function toggleBanUser(userId) {
-  const user = getUserById(userId);
-  user.banned = !user.banned;
-  renderAdminUsers();
-  showToast(user.banned ? `${user.name} is banned.` : `${user.name} is unbanned.`);
-}
 
-function toggleOfficialVerification(userId) {
-  const user = getUserById(userId);
-  user.official = !user.official;
-  renderAdminUsers();
-  renderFeed();
-  renderProfile();
-  renderVerifiedUsers();
-  showToast(user.official ? `${user.name} has official verification.` : `${user.name} lost official verification.`);
-}
 
-function initialize() {
-  state.users.unshift({
-    id: "verdantofficial",
-    name: "Verdant Official",
-    handle: "@verdantofficial",
-    bio: "Open-source social features, wellness culture, and green product updates.",
-    followers: 12840,
-    following: 432,
-    official: true,
-    banned: false,
-    avatar: "V",
-  });
 
-  document.getElementById("authForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-    signInUser(document.getElementById("authUsername").value, document.getElementById("authPassword").value);
-  });
 
-  document.getElementById("accountForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-    saveAccount();
-  });
 
-  document.getElementById("adminLoginForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-    openAdminPanel();
-  });
 
-  document.getElementById("publishLeaf").addEventListener("click", createLeaf);
 
-  document.addEventListener("click", (event) => {
-    const target = event.target.closest("[data-action]");
-    if (!target) return;
 
-    const action = target.dataset.action;
-    const postId = target.dataset.postId;
-    const userId = target.dataset.userId;
-    const view = target.dataset.view;
 
-    if (view) setView(view);
-    if (action === "close-auth") closeAuthModal();
-    if (action === "close-post") closePostModal();
-    if (action === "close-admin") closeAdminModal();
-    if (action === "open-signin") openAuthModal();
-    if (action === "github-signin") handleGithubSignIn();
-    if (action === "delete-account") deleteAccount();
-    if (action === "open-profile") openProfile(userId);
-    if (action === "open-post") openPost(postId);
-    if (action === "toggle-follow") toggleFollow(userId);
-    if (action === "like-post") handleLike(postId);
-    if (action === "reply-post") handleReply(postId);
-    if (action === "share-post") handleShare(postId);
-    if (action === "ban-user") toggleBanUser(userId);
-    if (action === "toggle-verification") toggleOfficialVerification(userId);
-  });
 
-  document.addEventListener("keydown", (event) => {
-    if (event.ctrlKey && event.shiftKey && event.altKey && event.key.toLowerCase() === "v") {
-      event.preventDefault();
-      openAdminModal();
-    }
-  });
 
-  renderFeed();
-  renderVerifiedUsers();
-  setView("feed");
-  openAuthModal();
-}
 
-initialize();
 
-window.addEventListener("beforeunload", () => {
-  document.getElementById("authModal").classList.remove("hidden");
-});
 
 
 
@@ -853,4 +1049,40 @@ window.addEventListener("beforeunload", () => {
 
 
 
-authUsername
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
