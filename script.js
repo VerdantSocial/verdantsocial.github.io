@@ -1,836 +1,925 @@
-:root {
-  --bg: #f3f2ed;
-  --bg-alt: #ece8e0;
-  --panel: #ffffff;
-  --panel-soft: #f7f6f2;
-  --panel-deep: #ece8df;
-  --text: #1d2a22;
-  --text-soft: #586960;
-  --verdant: #2d7a59;
-  --verdant-strong: #1f5e43;
-  --verdant-soft: rgba(45, 122, 89, 0.12);
-  --leaf: #7ec59d;
-  --gold: #c79a34;
-  --gold-soft: rgba(199, 154, 52, 0.12);
-  --line: rgba(30, 58, 44, 0.1);
-  --danger: #b64b48;
-  --shadow: 0 18px 42px rgba(30, 42, 34, 0.08);
-  --radius: 24px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  min-height: 100%;
-  font-family: Inter, "Segoe UI", sans-serif;
-  background: linear-gradient(180deg, var(--bg-alt) 0%, #f7f6f3 100%);
-  color: var(--text);
-}
-
-body {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  padding: 30px 20px;
-}
-
-button,
-input,
-textarea {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
-
-textarea,
-input {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: #fff;
-  color: var(--text);
-  padding: 12px 14px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-textarea:focus,
-input:focus {
-  outline: none;
-  border-color: rgba(45, 122, 89, 0.4);
-  box-shadow: 0 0 0 4px rgba(45, 122, 89, 0.08);
-}
-
-.app-shell {
-  width: min(1440px, 100%);
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(27, 46, 37, 0.08);
-  border-radius: 28px;
-  padding: 16px 20px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(12px);
-  position: sticky;
-  top: 18px;
-  z-index: 10;
-}
-
-.brand-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.brand-kicker {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--verdant-strong);
-  margin: 0;
-}
-
-.brand-wrap strong {
-  font-size: 1.2rem;
-}
-
-.brand-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(126, 197, 157, 0.18), rgba(45, 122, 89, 0.2));
-  border: 1px solid rgba(45, 122, 89, 0.2);
-  display: grid;
-  place-items: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.brand-mark.small-mark {
-  width: 28px;
-  height: 28px;
-  border-radius: 10px;
-}
-
-.brand-mark-inner {
-  width: 18px;
-  height: 20px;
-  display: block;
-  background: linear-gradient(180deg, var(--leaf), var(--verdant));
-  clip-path: polygon(44% 0%, 92% 16%, 76% 100%, 18% 100%, 8% 34%);
-  transform: rotate(-14deg);
-  opacity: 0.95;
-}
-
-.main-nav {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  justify-content: center;
-}
-
-.nav-btn,
-.primary-btn,
-.ghost-btn,
-.secondary-btn,
-.danger-btn,
-.token-btn,
-.action-button,
-.inline-button,
-.auth-tab {
-  border-radius: 12px;
-  border: 1px solid transparent;
-  transition: 0.2s ease;
-}
-
-.nav-btn {
-  background: transparent;
-  color: var(--text-soft);
-  border-color: transparent;
-  padding: 10px 14px;
-  font-weight: 600;
-}
-
-.nav-btn.active {
-  background: rgba(45, 122, 89, 0.08);
-  color: var(--verdant-strong);
-  border-color: rgba(45, 122, 89, 0.14);
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.primary-btn,
-.secondary-btn,
-.ghost-btn,
-.danger-btn,
-.inline-button,
-.action-button {
-  padding: 10px 16px;
-  font-weight: 600;
-}
-
-.primary-btn {
-  background: linear-gradient(180deg, var(--verdant), var(--verdant-strong));
-  color: white;
-  border-color: rgba(31, 94, 67, 0.15);
-}
-
-.ghost-btn,
-.secondary-btn,
-.action-button,
-.inline-button,
-.auth-tab {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: var(--line);
-  color: var(--text);
-}
-
-.danger-btn {
-  background: rgba(182, 75, 72, 0.08);
-  border-color: rgba(182, 75, 72, 0.24);
-  color: var(--danger);
-}
-
-.full-width {
-  width: 100%;
-}
-
-.layout-grid {
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 300px;
-  gap: 22px;
-  margin-top: 24px;
-}
-
-.sidebar,
-.panel-card,
-.composer-card,
-.profile-header,
-.post-card,
-.leaf-card,
-.side-panel {
-  background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(27, 46, 37, 0.08);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
-
-.sidebar {
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  align-self: start;
-}
-
-.profile-preview-card,
-.side-panel {
-  padding: 18px;
-}
-
-.profile-mini {
-  display: grid;
-  gap: 14px;
-}
-
-.profile-topline {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--verdant), var(--leaf));
-  display: grid;
-  place-items: center;
-  color: white;
-  font-weight: 700;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
-  overflow: hidden;
-}
-
-.avatar.small {
-  width: 42px;
-  height: 42px;
-  font-size: 0.9rem;
-}
-
-.avatar img,
-.profile-cover img,
-.profile-picture {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.profile-cover {
-  width: 100%;
-  height: 120px;
-  border-radius: 18px;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgba(126, 197, 157, 0.24), rgba(45, 122, 89, 0.34));
-  border: 1px solid rgba(45, 122, 89, 0.1);
-}
-
-.profile-mini-meta h3,
-.profile-heading h3,
-.post-author-meta h3,
-.profile-card h3,
-.panel-heading h2,
-.composer-header h2,
-.modal-card h2,
-.account-form h2 {
-  margin: 0;
-}
-
-.section-label {
-  margin: 0 0 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.68rem;
-  color: var(--verdant-strong);
-  font-weight: 700;
-}
-
-.profile-mini-meta {
-  display: grid;
-  gap: 4px;
-}
-
-.handle-text,
-.meta-line,
-.muted {
-  color: var(--text-soft);
-}
-
-.verification-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.72rem;
-}
-
-.verification-badge.official {
-  background: var(--gold-soft);
-  border: 1px solid rgba(199, 154, 52, 0.28);
-  color: var(--gold);
-}
-
-.verification-badge.standard {
-  background: rgba(45, 122, 89, 0.08);
-  border: 1px solid rgba(45, 122, 89, 0.14);
-  color: var(--verdant-strong);
-}
-
-.leaf-icon {
-  display: inline-block;
-  width: 10px;
-  height: 12px;
-  background: currentColor;
-  clip-path: polygon(50% 0%, 100% 18%, 82% 100%, 18% 100%, 0% 18%);
-  transform: rotate(-10deg);
-}
-
-.trend-list,
-.mini-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 10px;
-  color: var(--text-soft);
-}
-
-.trend-list li,
-.mini-list li {
-  background: rgba(247, 246, 242, 0.9);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 9px 12px;
-}
-
-.center-column {
-  min-width: 0;
-}
-
-.view-panel {
-  display: none;
-}
-
-.view-panel.active {
-  display: block;
-}
-
-.composer-card,
-.panel-card {
-  padding: 18px;
-}
-
-.composer-header,
-.panel-heading,
-.profile-header-top,
-.profile-meta-row,
-.user-row,
-.post-header,
-.detail-meta,
-.row-between {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.composer-header {
-  justify-content: flex-start;
-  margin-bottom: 14px;
-}
-
-#leafComposer {
-  width: 100%;
-  background: rgba(247, 246, 242, 0.9);
-  resize: vertical;
-  min-height: 110px;
-  border-radius: 16px;
-}
-
-.composer-tools {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 14px;
-}
-
-.token-buttons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.token-btn {
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--text);
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-.feed-container,
-.discover-list {
-  display: grid;
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.leaf-card {
-  padding: 18px;
-}
-
-.post-header {
-  justify-content: flex-start;
-}
-
-.post-author-meta {
-  flex: 1;
-  min-width: 0;
-}
-
-.post-author-meta h3,
-.profile-card h3 {
-  font-size: 1.08rem;
-}
-
-.post-author-meta p,
-.profile-bio,
-.muted {
-  margin: 0;
-  color: var(--text-soft);
-}
-
-.meta-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-  flex-wrap: wrap;
-}
-
-.post-body {
-  margin: 16px 0;
-  line-height: 1.7;
-  color: #1c2c25;
-}
-
-.post-body .token {
-  display: inline-block;
-  background: rgba(45, 122, 89, 0.08);
-  color: var(--verdant-strong);
-  border-radius: 7px;
-  padding: 0 5px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.post-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.action-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 9px 12px;
-}
-
-.action-button.is-active {
-  background: rgba(45, 122, 89, 0.08);
-  border-color: rgba(45, 122, 89, 0.16);
-  color: var(--verdant-strong);
-}
-
-.profile-header {
-  overflow: hidden;
-}
-
-.profile-cover {
-  height: 180px;
-  border-radius: 0;
-  border: none;
-}
-
-.profile-header-body {
-  padding: 0 20px 20px;
-}
-
-.profile-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 16px;
-  margin-top: -34px;
-}
-
-.profile-picture-large {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.92);
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--verdant), var(--leaf));
-  box-shadow: 0 12px 30px rgba(45, 122, 89, 0.18);
-}
-
-.profile-card {
-  padding: 18px;
-  margin-top: 18px;
-}
-
-.profile-bio-block {
-  display: grid;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.profile-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.meta-item {
-  background: rgba(247, 246, 242, 0.9);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 12px 14px;
-}
-
-.meta-item span {
-  display: block;
-  color: var(--text-soft);
-  font-size: 0.73rem;
-  margin-bottom: 4px;
-}
-
-.meta-item strong a {
-  color: var(--verdant-strong);
-  text-decoration: none;
-  word-break: break-word;
-}
-
-.profile-cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.user-row {
-  padding: 12px 0;
-  border-top: 1px solid var(--line);
-}
-
-.user-row:first-child {
-  border-top: none;
-}
-
-.verified-list,
-.discover-list {
-  display: grid;
-  gap: 12px;
-}
-
-.verified-item,
-.discover-entity {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: rgba(247, 246, 242, 0.9);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 10px 12px;
-}
-
-.verified-item strong,
-.discover-entity strong {
-  display: block;
-}
-
-.verified-item small,
-.discover-entity small {
-  color: var(--text-soft);
-}
-
-.empty-state {
-  background: rgba(247, 246, 242, 0.9);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 24px;
-  color: var(--text-soft);
-  text-align: center;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(18, 28, 23, 0.42);
-  backdrop-filter: blur(4px);
-  display: grid;
-  place-items: center;
-  z-index: 30;
-}
-
-.modal-overlay.hidden {
-  display: none;
-}
-
-.modal-card {
-  width: min(560px, calc(100% - 28px));
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(27, 46, 37, 0.08);
-  border-radius: 30px;
-  box-shadow: var(--shadow);
-  padding: 22px;
-}
-
-.post-card {
-  width: min(720px, calc(100% - 28px));
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-
-.brand-panel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 700;
-  color: var(--verdant-strong);
-}
-
-.close-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: rgba(247, 246, 242, 0.8);
-  color: var(--text);
-  font-size: 1.2rem;
-}
-
-.auth-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
-  background: rgba(247, 246, 242, 0.9);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 6px;
-}
-
-.auth-tab {
-  flex: 1;
-  padding: 10px 12px;
-}
-
-.auth-tab.active {
-  background: rgba(45, 122, 89, 0.08);
-  border-color: rgba(45, 122, 89, 0.14);
-  color: var(--verdant-strong);
-}
-
-.auth-panel {
-  display: none;
-}
-
-.auth-panel.active {
-  display: block;
-}
-
-.stack-form,
-.account-form {
-  display: grid;
-  gap: 16px;
-}
-
-.account-form label,
-.stack-form label {
-  display: grid;
-  gap: 8px;
-  color: var(--text-soft);
-}
-
-.form-grid {
-  display: grid;
-  gap: 16px;
-}
-
-.two-col {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.button-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.admin-panel {
-  margin-top: 18px;
-  border-top: 1px solid var(--line);
-  padding-top: 18px;
-}
-
-.admin-panel.hidden {
-  display: none;
-}
-
-.admin-user {
-  background: rgba(247, 246, 242, 0.9);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px;
-  display: grid;
-  gap: 12px;
-}
-
-.admin-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.toast {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  background: rgba(29, 42, 34, 0.95);
-  color: white;
-  border-radius: 12px;
-  padding: 12px 14px;
-  box-shadow: var(--shadow);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: 0.2s ease;
-  z-index: 50;
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@media (max-width: 1100px) {
-  .layout-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .topbar {
-    flex-wrap: wrap;
-  }
-
-  .main-nav {
-    order: 3;
-    width: 100%;
-    justify-content: flex-start;
-    overflow-x: auto;
+const STORAGE_KEY = "verdantSocialStateV1";
+const ADMIN_CREDENTIALS = {
+  username: "verdantadmin",
+  password: "verdantstaff2024",
+};
+
+const createOfficialVerdantUser = () => ({
+  id: "verdant",
+  username: "verdant",
+  handle: "@verdant",
+  displayName: "Verdant",
+  aboutMe: "Rooting community, creativity, and sustainable ideas in one place.",
+  website: "https://verdant.social",
+  profilePicture: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=400&q=80",
+  coverPhoto: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80",
+  favoriteGame: "Minecraft",
+  followers: 0,
+  following: [],
+  official: true,
+  banned: false,
+  avatarLetter: "V",
+  createdAt: new Date().toISOString(),
+});
+
+const defaultState = {
+  currentUserId: null,
+  selectedProfileId: "verdant",
+  activeView: "feed",
+  users: [createOfficialVerdantUser()],
+  posts: [],
+  adminPanelOpen: false,
+};
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!saved) return structuredClone(defaultState);
+
+    const merged = {
+      ...structuredClone(defaultState),
+      ...saved,
+      users: (saved.users && saved.users.length ? saved.users : defaultState.users),
+      posts: saved.posts || [],
+    };
+
+    if (!merged.users.some((user) => user.id === "verdant")) {
+      merged.users.unshift(createOfficialVerdantUser());
+    }
+
+    return merged;
+  } catch (error) {
+    return structuredClone(defaultState);
   }
 }
 
-@media (max-width: 720px) {
-  body {
-    padding: 16px;
+const state = loadState();
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function findUserById(userId) {
+  return state.users.find((user) => user.id === userId) || null;
+}
+
+function findUserByUsername(usernameInput) {
+  const normalized = normalizeUsername(usernameInput);
+  return state.users.find((user) => normalizeUsername(user.username) === normalized || normalizeUsername(user.handle) === normalized);
+}
+
+function normalizeUsername(value) {
+  return String(value || "").trim().replace(/^@/, "").toLowerCase();
+}
+
+function isVerifiedUser(user) {
+  if (!user) return false;
+  return user.official || user.followers >= 1000;
+}
+
+function getVerificationMarkup(user) {
+  if (!user) return "";
+  if (user.official) {
+    return '<span class="verification-badge official"><span class="leaf-icon"></span>Official</span>';
+  }
+  if (user.followers >= 1000) {
+    return '<span class="verification-badge standard"><span class="leaf-icon"></span>Verified</span>';
+  }
+  return "";
+}
+
+function getCurrentUser() {
+  return findUserById(state.currentUserId);
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  window.clearTimeout(showToast.timeoutId);
+  showToast.timeoutId = window.setTimeout(() => toast.classList.remove("show"), 2200);
+}
+
+function setView(viewName) {
+  state.activeView = viewName;
+
+  document.querySelectorAll(".nav-btn").forEach((button) => {
+    button.classList.toggle("active", button.dataset.view === viewName);
+  });
+
+  document.querySelectorAll(".view-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.id === `${viewName}View`);
+  });
+
+  if (viewName === "profile") renderProfile();
+  if (viewName === "feed") renderFeed();
+  if (viewName === "discover") renderDiscover();
+  if (viewName === "account") renderAccountForm();
+  renderSidebarProfile();
+}
+
+function renderSidebarProfile() {
+  const sidebar = document.getElementById("sidebarProfile");
+  const user = getCurrentUser();
+
+  if (!user) {
+    sidebar.innerHTML = `
+      <div class="profile-topline">
+        <div class="avatar">V</div>
+        <div class="profile-mini-meta">
+          <h3>Guest</h3>
+          <p class="handle-text">@guest</p>
+        </div>
+      </div>
+      <p class="muted">Sign in to join the Verdant community.</p>
+    `;
+    return;
   }
 
-  .two-col {
-    grid-template-columns: 1fr;
+  sidebar.innerHTML = `
+    <div class="profile-topline">
+      <div class="avatar">
+        <img src="${escapeHtml(user.profilePicture || "") || ""}" alt="${escapeHtml(user.displayName)}" onerror="this.style.display='none';this.parentElement.textContent='${user.displayName.charAt(0).toUpperCase()}'" />
+      </div>
+      <div class="profile-mini-meta">
+        <h3>${escapeHtml(user.displayName)}</h3>
+        <p class="handle-text">${escapeHtml(user.handle)}</p>
+      </div>
+    </div>
+    <div class="meta-row">
+      <span>${user.followers} followers</span>
+      ${getVerificationMarkup(user)}
+    </div>
+  `;
+}
+
+function renderVerifiedUsers() {
+  const container = document.getElementById("verifiedContainer");
+  const verifiedUsers = state.users.filter(isVerifiedUser);
+
+  if (!verifiedUsers.length) {
+    container.innerHTML = '<div class="empty-state">No verified members yet.</div>';
+    return;
   }
 
-  .header-actions {
-    width: 100%;
-    justify-content: flex-end;
+  container.innerHTML = verifiedUsers
+    .map(
+      (user) => `
+        <div class="verified-item">
+          <div>
+            <strong>${escapeHtml(user.displayName)}</strong>
+            <small>${escapeHtml(user.handle)}</small>
+          </div>
+          <button class="inline-button" data-action="open-profile" data-user-id="${user.id}" type="button">View</button>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function renderFeed() {
+  const container = document.getElementById("feedContainer");
+  const user = getCurrentUser();
+
+  document.getElementById("composerAvatar").textContent = user ? user.displayName.charAt(0).toUpperCase() : "V";
+
+  if (!state.posts.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <p>No leaves yet.</p>
+        <p>Start the conversation by publishing the first post.</p>
+      </div>
+    `;
+    return;
   }
 
-  .profile-row {
-    align-items: center;
+  container.innerHTML = state.posts
+    .slice()
+    .reverse()
+    .map((post) => {
+      const author = findUserById(post.authorId) || getCurrentUser();
+      const isLiked = user ? post.likes.includes(user.id) : false;
+      const isFollowing = user ? author && user.following.includes(author.id) : false;
+
+      return `
+        <article class="leaf-card">
+          <div class="post-header">
+            <div class="avatar small">
+              <img src="${escapeHtml(author?.profilePicture || "")}" alt="${escapeHtml(author?.displayName || "User")}" onerror="this.style.display='none';this.parentElement.textContent='${(author?.displayName || "U").charAt(0).toUpperCase()}'" />
+            </div>
+            <div class="post-author-meta">
+              <div class="meta-row">
+                <h3>${escapeHtml(author?.displayName || "Unknown")}</h3>
+                ${getVerificationMarkup(author)}
+              </div>
+              <p>${escapeHtml(author?.handle || "@unknown")} • ${formatDate(post.createdAt)}</p>
+            </div>
+            <button class="ghost-btn" type="button" data-action="follow-user" data-user-id="${author?.id || ""}">${isFollowing ? "Following" : "Follow"}</button>
+          </div>
+
+          <div class="post-body">${renderInlineTokens(post.content)}</div>
+
+          <div class="post-actions">
+            <button class="action-button ${isLiked ? "is-active" : ""}" type="button" data-action="like-post" data-post-id="${post.id}">❤ ${post.likes.length}</button>
+            <button class="action-button" type="button" data-action="reply-post" data-post-id="${post.id}">↩ ${post.replies.length}</button>
+            <button class="action-button" type="button" data-action="share-post" data-post-id="${post.id}">↗ ${post.shares}</button>
+            <button class="action-button" type="button" data-action="open-post" data-post-id="${post.id}">Open</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderInlineTokens(content) {
+  const escaped = escapeHtml(content);
+  return escaped
+    .replace(/(^|\s)#([a-zA-Z0-9_]+)/g, '$1<span class="token">#$2</span>')
+    .replace(/(^|\s)@([a-zA-Z0-9_]+)/g, '$1<span class="token">@$2</span>');
+}
+
+function renderDiscover() {
+  const container = document.getElementById("discoverContainer");
+  container.innerHTML = state.users
+    .filter((user) => user.id !== state.currentUserId)
+    .map(
+      (user) => `
+        <div class="discover-entity">
+          <div>
+            <strong>${escapeHtml(user.displayName)}</strong>
+            <small>${escapeHtml(user.handle)}</small>
+          </div>
+          <button class="ghost-btn" type="button" data-action="open-profile" data-user-id="${user.id}">View profile</button>
+        </div>
+      `
+    )
+    .join("") || '<div class="empty-state">No other users yet.</div>';
+}
+
+function renderProfile() {
+  const profileContainer = document.getElementById("profileContainer");
+  const user = findUserById(state.selectedProfileId) || getCurrentUser() || state.users[0];
+  const isCurrentUser = user && getCurrentUser() && user.id === getCurrentUser().id;
+  const posts = state.posts.filter((post) => post.authorId === user.id);
+  const isFollowing = getCurrentUser() ? getCurrentUser().following.includes(user.id) : false;
+
+  profileContainer.innerHTML = `
+    <div class="profile-header">
+      <div class="profile-cover">
+        <img src="${escapeHtml(user.coverPhoto || "")}" alt="${escapeHtml(user.displayName)} cover" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg, rgba(126,197,157,0.24), rgba(45,122,89,0.34))'" />
+      </div>
+
+      <div class="profile-header-body">
+        <div class="profile-row">
+          <div class="profile-picture-large">
+            <img src="${escapeHtml(user.profilePicture || "")}" alt="${escapeHtml(user.displayName)}" onerror="this.style.display='none';this.parentElement.textContent='${(user.displayName || "U").charAt(0).toUpperCase()}'" />
+          </div>
+
+          <div class="profile-heading">
+            <div class="meta-row">
+              <h3>${escapeHtml(user.displayName)}</h3>
+              ${getVerificationMarkup(user)}
+            </div>
+            <p class="handle-text">${escapeHtml(user.handle)}</p>
+          </div>
+        </div>
+
+        <div class="profile-bio-block">
+          <p class="profile-bio">${escapeHtml(user.aboutMe || "No bio yet.")}</p>
+
+          <div class="profile-meta-grid">
+            <div class="meta-item">
+              <span>Website</span>
+              <strong><a href="${escapeHtml(user.website || "#")}" target="_blank" rel="noreferrer">${escapeHtml(user.website || "Not provided")}</a></strong>
+            </div>
+            <div class="meta-item">
+              <span>Favorite game</span>
+              <strong>${escapeHtml(user.favoriteGame || "Not provided")}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-cta">
+          <button class="primary-btn" type="button" data-action="follow-user" data-user-id="${user.id}">${isFollowing ? "Following" : "Follow"}</button>
+          <button class="secondary-btn" type="button" data-action="open-post" data-post-id="${posts[0]?.id || ""}">${posts[0] ? "View latest" : "No posts yet"}</button>
+          ${isCurrentUser ? '<button class="ghost-btn" type="button" data-action="go-account">Edit account</button>' : ""}
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="panel-heading">
+        <div>
+          <p class="section-label">Activity</p>
+          <h3>${escapeHtml(user.displayName)}'s leaves</h3>
+        </div>
+      </div>
+
+      <div class="feed-container" style="margin-top: 14px;">
+        ${posts.length ? posts.slice().reverse().map((post) => `
+          <div class="user-row">
+            <div>
+              <h4>${escapeHtml(user.displayName)}</h4>
+              <p class="muted">${formatDate(post.createdAt)}</p>
+            </div>
+            <button class="ghost-btn" type="button" data-action="open-post" data-post-id="${post.id}">Open</button>
+          </div>
+        `).join("") : '<div class="empty-state">No leaves yet.</div>'}
+      </div>
+    </div>
+  `;
+}
+
+function renderAccountForm() {
+  const user = getCurrentUser();
+  if (!user) {
+    document.getElementById("accountForm").reset();
+    return;
+  }
+
+  document.getElementById("displayNameInput").value = user.displayName;
+  document.getElementById("usernameInput").value = user.username;
+  document.getElementById("bioInput").value = user.aboutMe || "";
+  document.getElementById("websiteInput").value = user.website || "";
+  document.getElementById("favoriteGameInput").value = user.favoriteGame || "";
+  document.getElementById("profilePicInput").value = user.profilePicture || "";
+  document.getElementById("coverPhotoInput").value = user.coverPhoto || "";
+}
+
+function formatDate(value) {
+  if (!value) return "just now";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "just now";
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function openAuthModal(mode = "signin") {
+  const modal = document.getElementById("authModal");
+  modal.classList.remove("hidden");
+
+  document.querySelectorAll(".auth-tab").forEach((button) => {
+    button.classList.toggle("active", button.dataset.authMode === mode);
+  });
+
+  document.getElementById("signinPanel").classList.toggle("active", mode === "signin");
+  document.getElementById("signupPanel").classList.toggle("active", mode === "signup");
+}
+
+function closeAuthModal() {
+  document.getElementById("authModal").classList.add("hidden");
+}
+
+function openPost(postId) {
+  const post = state.posts.find((item) => item.id === postId);
+  if (!post) return;
+
+  const author = findUserById(post.authorId);
+  document.getElementById("postDetailBody").innerHTML = `
+    <article class="leaf-card">
+      <div class="post-header">
+        <div class="avatar small">
+          <img src="${escapeHtml(author?.profilePicture || "")}" alt="${escapeHtml(author?.displayName || "User")}" onerror="this.style.display='none';this.parentElement.textContent='${(author?.displayName || "U").charAt(0).toUpperCase()}'" />
+        </div>
+        <div class="post-author-meta">
+          <div class="meta-row">
+            <h3>${escapeHtml(author?.displayName || "Unknown")}</h3>
+            ${getVerificationMarkup(author)}
+          </div>
+          <p>${escapeHtml(author?.handle || "@unknown")} • ${formatDate(post.createdAt)}</p>
+        </div>
+      </div>
+
+      <div class="post-body">${renderInlineTokens(post.content)}</div>
+
+      <div class="post-actions">
+        <button class="action-button" type="button" data-action="like-post" data-post-id="${post.id}">❤ ${post.likes.length}</button>
+        <button class="action-button" type="button" data-action="reply-post" data-post-id="${post.id}">↩ ${post.replies.length}</button>
+        <button class="action-button" type="button" data-action="share-post" data-post-id="${post.id}">↗ ${post.shares}</button>
+      </div>
+    </article>
+  `;
+
+  document.getElementById("postModal").classList.remove("hidden");
+}
+
+function closePostModal() {
+  document.getElementById("postModal").classList.add("hidden");
+}
+
+function openAdminModal() {
+  document.getElementById("adminModal").classList.remove("hidden");
+}
+
+function closeAdminModal() {
+  document.getElementById("adminModal").classList.add("hidden");
+}
+
+function signInUser(usernameOrHandle, password) {
+  const account = findUserByUsername(usernameOrHandle);
+  if (!account) {
+    showToast("No account with that username was found.");
+    return;
+  }
+
+  const existingPassword = account.password || "";
+
+  if (existingPassword !== password) {
+    showToast("Incorrect password.");
+    return;
+  }
+
+  state.currentUserId = account.id;
+  state.selectedProfileId = account.id;
+  closeAuthModal();
+  setView("feed");
+  saveState();
+  showToast(`Welcome back, ${account.displayName}`);
+}
+
+function createAccount(payload) {
+  const username = normalizeUsername(payload.username);
+  const displayName = (payload.displayName || "").trim();
+
+  if (!displayName || !username || !payload.password) {
+    showToast("Display name, username, and password are required.");
+    return;
+  }
+
+  if (findUserByUsername(username)) {
+    showToast("That username already exists.");
+    return;
+  }
+
+  const user = {
+    id: `user-${Date.now()}`,
+    username,
+    handle: `@${username}`,
+    displayName,
+    aboutMe: payload.aboutMe || "",
+    website: payload.website || "",
+    profilePicture: payload.profilePicture || "",
+    coverPhoto: payload.coverPhoto || "",
+    favoriteGame: payload.favoriteGame || "",
+    followers: 0,
+    following: [],
+    official: false,
+    banned: false,
+    avatarLetter: displayName.charAt(0).toUpperCase() || "U",
+    password: payload.password,
+    createdAt: new Date().toISOString(),
+  };
+
+  state.users.push(user);
+  state.currentUserId = user.id;
+  state.selectedProfileId = user.id;
+  closeAuthModal();
+  setView("profile");
+  saveState();
+  showToast("Account created successfully.");
+}
+
+function githubSignIn() {
+  const user = {
+    id: "github-user",
+    username: "githubuser",
+    handle: "@githubuser",
+    displayName: "GitHub User",
+    aboutMe: "Open-source creator building community tools.",
+    website: "",
+    profilePicture: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=400&q=80",
+    coverPhoto: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80",
+    favoriteGame: "Factorio",
+    followers: 0,
+    following: [],
+    official: false,
+    banned: false,
+    avatarLetter: "G",
+    createdAt: new Date().toISOString(),
+  };
+
+  if (!state.users.some((item) => item.id === "github-user")) {
+    state.users.push(user);
+  }
+
+  state.currentUserId = user.id;
+  state.selectedProfileId = user.id;
+  closeAuthModal();
+  setView("feed");
+  saveState();
+  showToast("Signed in with GitHub.");
+}
+
+function saveAccountChanges(event) {
+  event.preventDefault();
+  const user = getCurrentUser();
+  if (!user) {
+    showToast("Sign in to edit your profile.");
+    openAuthModal("signin");
+    return;
+  }
+
+  const username = normalizeUsername(document.getElementById("usernameInput").value);
+  if (username && username !== normalizeUsername(user.username) && findUserByUsername(username)) {
+    showToast("That username is already in use.");
+    return;
+  }
+
+  user.displayName = document.getElementById("displayNameInput").value.trim() || user.displayName;
+  user.username = username || user.username;
+  user.handle = `@${user.username}`;
+  user.aboutMe = document.getElementById("bioInput").value.trim();
+  user.website = document.getElementById("websiteInput").value.trim();
+  user.favoriteGame = document.getElementById("favoriteGameInput").value.trim();
+  user.profilePicture = document.getElementById("profilePicInput").value.trim();
+  user.coverPhoto = document.getElementById("coverPhotoInput").value.trim();
+
+  state.selectedProfileId = user.id;
+  saveState();
+  renderFeed();
+  renderProfile();
+  renderSidebarProfile();
+  renderVerifiedUsers();
+  showToast("Profile updated.");
+}
+
+function deleteCurrentAccount() {
+  const user = getCurrentUser();
+  if (!user) {
+    showToast("No account is signed in.");
+    return;
+  }
+
+  state.users = state.users.filter((account) => account.id !== user.id);
+  state.currentUserId = null;
+  state.selectedProfileId = "verdant";
+  saveState();
+  setView("feed");
+  closeAuthModal();
+  showToast("Account deleted.");
+}
+
+function toggleFollowUser(userId) {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    openAuthModal("signin");
+    showToast("Sign in to follow people.");
+    return;
+  }
+
+  const target = findUserById(userId);
+  if (!target || target.id === currentUser.id) return;
+
+  if (currentUser.following.includes(target.id)) {
+    currentUser.following = currentUser.following.filter((id) => id !== target.id);
+    target.followers = Math.max(0, Number(target.followers || 0) - 1);
+  } else {
+    currentUser.following.push(target.id);
+    target.followers = Number(target.followers || 0) + 1;
+  }
+
+  saveState();
+  renderFeed();
+  renderProfile();
+  renderDiscover();
+  renderSidebarProfile();
+  renderVerifiedUsers();
+}
+
+function likePost(postId) {
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    openAuthModal("signin");
+    showToast("Sign in to like posts.");
+    return;
+  }
+
+  const post = state.posts.find((entry) => entry.id === postId);
+  if (!post) return;
+
+  if (post.likes.includes(currentUser.id)) {
+    post.likes = post.likes.filter((id) => id !== currentUser.id);
+  } else {
+    post.likes.push(currentUser.id);
+  }
+
+  saveState();
+  renderFeed();
+  if (document.getElementById("postModal").classList.contains("hidden") === false) openPost(postId);
+}
+
+function sharePost(postId) {
+  const post = state.posts.find((entry) => entry.id === postId);
+  if (!post) return;
+
+  post.shares += 1;
+  const shareUrl = `https://verdant.social/leaf/${postId}`;
+  navigator.clipboard?.writeText(shareUrl).catch(() => {});
+  saveState();
+  renderFeed();
+  showToast("Share link copied.");
+}
+
+function replyToPost(postId) {
+  const post = state.posts.find((entry) => entry.id === postId);
+  if (!post) return;
+
+  const author = findUserById(post.authorId);
+  const composer = document.getElementById("leafComposer");
+  composer.value = `Replying to @${author?.username || "user"}: `;
+  composer.focus();
+  setView("feed");
+  showToast(`Replying to ${author?.handle || "@user"}.`);
+}
+
+function publishLeaf() {
+  const composer = document.getElementById("leafComposer");
+  const content = composer.value.trim();
+
+  if (!content) {
+    showToast("Write a message before publishing.");
+    return;
+  }
+
+  const currentUser = getCurrentUser();
+  if (!currentUser) {
+    openAuthModal("signin");
+    showToast("Sign in to publish a leaf.");
+    return;
+  }
+
+  if (currentUser.banned) {
+    showToast("This account is banned.");
+    return;
+  }
+
+  const post = {
+    id: `leaf-${Date.now()}`,
+    authorId: currentUser.id,
+    content,
+    createdAt: new Date().toISOString(),
+    likes: [],
+    replies: [],
+    shares: 0,
+  };
+
+  state.posts.push(post);
+  composer.value = "";
+  saveState();
+  renderFeed();
+  renderProfile();
+  showToast("Leaf published.");
+}
+
+function injectComposerToken(symbol) {
+  const composer = document.getElementById("leafComposer");
+  const start = composer.selectionStart;
+  const end = composer.selectionEnd;
+  const value = composer.value;
+  composer.value = value.slice(0, start) + symbol + value.slice(end);
+  composer.focus();
+  composer.setSelectionRange(start + 1, start + 1);
+}
+
+function handleAdminLogin(event) {
+  event.preventDefault();
+  const username = document.getElementById("adminUsername").value.trim();
+  const password = document.getElementById("adminPassword").value;
+
+  if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+    state.adminPanelOpen = true;
+    renderAdminPanel();
+    document.getElementById("adminLoginForm").classList.add("hidden");
+    document.getElementById("adminPanel").classList.remove("hidden");
+    showToast("Welcome to the staff backend.");
+  } else {
+    showToast("Invalid admin credentials.");
   }
 }
+
+function renderAdminPanel() {
+  const adminList = document.getElementById("adminUserList");
+  adminList.innerHTML = state.users
+    .map(
+      (user) => `
+        <div class="admin-user">
+          <div class="meta-row">
+            <strong>${escapeHtml(user.displayName)}</strong>
+            ${getVerificationMarkup(user)}
+          </div>
+          <small class="muted">${escapeHtml(user.handle)}</small>
+          <div class="admin-actions">
+            <button class="ghost-btn" type="button" data-action="toggle-ban" data-user-id="${user.id}">${user.banned ? "Unban" : "Ban"}</button>
+            <button class="primary-btn" type="button" data-action="toggle-official" data-user-id="${user.id}">${user.official ? "Remove official" : "Make official"}</button>
+          </div>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function toggleBanUser(userId) {
+  const user = findUserById(userId);
+  if (!user) return;
+  user.banned = !user.banned;
+  saveState();
+  renderAdminPanel();
+  renderFeed();
+  renderDiscover();
+  showToast(user.banned ? `${user.displayName} is banned.` : `${user.displayName} is unbanned.`);
+}
+
+function toggleOfficialVerification(userId) {
+  const user = findUserById(userId);
+  if (!user) return;
+  user.official = !user.official;
+  saveState();
+  renderAdminPanel();
+  renderFeed();
+  renderProfile();
+  renderVerifiedUsers();
+  showToast(user.official ? `${user.displayName} has official verification.` : `${user.displayName} lost official verification.`);
+}
+
+function initializeEvents() {
+  document.getElementById("signInButton").addEventListener("click", () => openAuthModal("signin"));
+  document.getElementById("createAccountButton").addEventListener("click", () => openAuthModal("signup"));
+  document.getElementById("publishLeaf").addEventListener("click", publishLeaf);
+  document.getElementById("accountForm").addEventListener("submit", saveAccountChanges);
+  document.getElementById("signinForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    signInUser(document.getElementById("signinUsername").value, document.getElementById("signinPassword").value);
+  });
+  document.getElementById("signupForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    createAccount({
+      displayName: document.getElementById("signupDisplayName").value,
+      username: document.getElementById("signupUsername").value,
+      password: document.getElementById("signupPassword").value,
+      aboutMe: document.getElementById("signupBio").value,
+      website: document.getElementById("signupWebsite").value,
+      favoriteGame: document.getElementById("signupFavoriteGame").value,
+      profilePicture: document.getElementById("signupProfilePicture").value,
+      coverPhoto: document.getElementById("signupCoverPhoto").value,
+    });
+  });
+  document.getElementById("adminLoginForm").addEventListener("submit", handleAdminLogin);
+
+  document.addEventListener("click", (event) => {
+    const actionTarget = event.target.closest("[data-action]");
+    if (!actionTarget) return;
+
+    const { action, userId, postId, view, authMode, insert } = actionTarget.dataset;
+    if (view) setView(view);
+    if (action === "close-auth") closeAuthModal();
+    if (action === "close-post") closePostModal();
+    if (action === "close-admin") closeAdminModal();
+    if (authMode) openAuthModal(authMode);
+    if (action === "github-signin") githubSignIn();
+    if (action === "open-profile") {
+      state.selectedProfileId = userId;
+      setView("profile");
+    }
+    if (action === "go-account") setView("account");
+    if (action === "delete-account") deleteCurrentAccount();
+    if (action === "follow-user") toggleFollowUser(userId);
+    if (action === "like-post") likePost(postId);
+    if (action === "reply-post") replyToPost(postId);
+    if (action === "share-post") sharePost(postId);
+    if (action === "open-post") openPost(postId);
+    if (action === "toggle-ban") toggleBanUser(userId);
+    if (action === "toggle-official") toggleOfficialVerification(userId);
+    if (insert) injectComposerToken(insert);
+  });
+
+  document.querySelectorAll(".token-btn").forEach((button) => {
+    button.addEventListener("click", () => injectComposerToken(button.dataset.insert));
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.ctrlKey && event.shiftKey && event.altKey && event.key.toLowerCase() === "v") {
+      event.preventDefault();
+      openAdminModal();
+    }
+  });
+}
+
+function boot() {
+  initializeEvents();
+  renderFeed();
+  renderDiscover();
+  renderVerifiedUsers();
+  renderSidebarProfile();
+  renderProfile();
+  renderAccountForm();
+  setView("feed");
+}
+
+boot();
+
+window.addEventListener("beforeunload", () => saveState());
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
