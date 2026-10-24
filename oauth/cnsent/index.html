@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verdant Social OAuth Consent</title>
+    <style>
+      :root {
+        --bg: #04150f;
+        --bg-2: #081f19;
+        --panel: rgba(12, 27, 22, 0.9);
+        --panel-border: rgba(142, 205, 163, 0.2);
+        --text: #edf8ee;
+        --text-soft: #c7d9cc;
+        --muted: #8ea99a;
+        --brand: #5ad88c;
+        --brand-strong: #88f1b0;
+        --green: #7ee595;
+        --danger: #ff7b7b;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: Inter, "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(93, 216, 140, 0.2), transparent 26%),
+          radial-gradient(circle at bottom right, rgba(21, 99, 70, 0.2), transparent 28%),
+          linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+      }
+
+      .consent-shell {
+        width: min(760px, calc(100vw - 32px));
+        background: rgba(10, 25, 21, 0.92);
+        border: 1px solid var(--panel-border);
+        border-radius: 26px;
+        box-shadow: 0 26px 60px rgba(0,0,0,.38);
+        overflow: hidden;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--panel-border);
+        background: rgba(7, 24, 18, 0.8);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--green), var(--brand));
+        position: relative;
+      }
+
+      .brand-mark::before,
+      .brand-mark::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+      }
+
+      .brand-mark::before {
+        width: 14px;
+        height: 14px;
+        left: 8px;
+        top: 8px;
+      }
+
+      .brand-mark::after {
+        width: 7px;
+        height: 7px;
+        right: 8px;
+        bottom: 8px;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        background: rgba(122, 216, 138, 0.1);
+        border: 1px solid rgba(122, 216, 138, 0.15);
+        color: var(--brand-strong);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--brand);
+        box-shadow: 0 0 18px rgba(90,216,140,0.8);
+      }
+
+      .content {
+        padding: 28px 24px 24px;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2rem, 3vw, 2.8rem);
+        letter-spacing: -0.06em;
+      }
+
+      .subtitle {
+        margin: 0 0 22px;
+        color: var(--text-soft);
+        line-height: 1.6;
+      }
+
+      .app-card {
+        display: grid;
+        grid-template-columns: 70px minmax(0,1fr);
+        gap: 16px;
+        align-items: center;
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(17, 35, 29, 0.8);
+        border: 1px solid var(--panel-border);
+      }
+
+      .app-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, var(--brand), var(--green));
+        color: #071b12;
+        font-weight: 900;
+        font-size: 1.7rem;
+      }
+
+      .app-meta h2 {
+        margin: 0 0 4px;
+        font-size: 1.4rem;
+      }
+
+      .app-meta p {
+        margin: 0;
+        color: var(--text-soft);
+      }
+
+      .scopes {
+        margin-top: 24px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .scope-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        align-items: center;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: rgba(122, 216, 138, 0.06);
+        border: 1px solid rgba(122, 216, 138, 0.14);
+      }
+
+      .scope-name {
+        display: grid;
+        gap: 4px;
+      }
+
+      .scope-name strong {
+        font-size: 1rem;
+      }
+
+      .scope-name span {
+        color: var(--text-soft);
+        font-size: 0.85rem;
+      }
+
+      .scope-tag {
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(122, 216, 138, 0.12);
+        color: var(--brand-strong);
+        border: 1px solid rgba(122, 216, 138, 0.12);
+      }
+
+      .meta-grid {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .meta-box {
+        padding: 14px 16px;
+        background: rgba(17, 35, 29, 0.7);
+        border: 1px solid var(--panel-border);
+        border-radius: 14px;
+      }
+
+      .meta-box label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .meta-box strong {
+        word-break: break-word;
+        font-size: 0.96rem;
+      }
+
+      .cta-row {
+        margin-top: 28px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      .btn:hover { transform: translateY(-1px); }
+      .btn:active { transform: translateY(0); }
+
+      .btn.secondary {
+        background: rgba(18, 36, 29, 0.9);
+        color: var(--text);
+        border: 1px solid var(--panel-border);
+      }
+
+      .btn.primary {
+        background: linear-gradient(135deg, var(--brand), var(--green));
+        color: #041a11;
+        box-shadow: 0 12px 26px rgba(92, 216, 140, 0.24);
+      }
+
+      .btn.danger {
+        background: rgba(255, 123, 123, 0.08);
+        border: 1px solid rgba(255, 123, 123, 0.16);
+        color: var(--danger);
+      }
+
+      @media (max-width: 640px) {
+        .meta-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .cta-row {
+          justify-content: stretch;
+        }
+
+        .cta-row .btn {
+          flex: 1 1 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="consent-shell">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <span>Verdant</span>
+        </div>
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          OAuth consent
+        </div>
+      </div>
+
+      <div class="content">
+        <h1>Authorize Verdant access</h1>
+        <p class="subtitle" id="subtitle">
+          A third-party app is requesting access to your Verdant account to continue the sign-in flow.
+        </p>
+
+        <div class="app-card">
+          <div class="app-avatar" id="appAvatar">V</div>
+          <div class="app-meta">
+            <h2 id="clientName">Verdant app</h2>
+            <p id="clientSummary">This app wants to access your account on your behalf.</p>
+          </div>
+        </div>
+
+        <div class="scopes" id="scopes"></div>
+
+        <div class="meta-grid">
+          <div class="meta-box">
+            <label>Application</label>
+            <strong id="appId">verdant</strong>
+          </div>
+          <div class="meta-box">
+            <label>Redirect</label>
+            <strong id="redirectUri">Not provided</strong>
+          </div>
+        </div>
+
+        <div class="cta-row">
+          <button class="btn secondary" type="button" id="denyBtn">Deny</button>
+          <button class="btn primary" type="button" id="allowBtn">Allow access</button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const clientId = params.get('client_id') || 'verdant-app';
+      const redirectUri = params.get('redirect_uri') || '';
+      const state = params.get('state') || '';
+      const scope = params.get('scope') || 'read:user profile';
+      const displayName = params.get('app_name') || 'Verdant app';
+
+      const scopeMap = {
+        'read:user': ['Read your profile', 'View your public account details and basic identity info.'],
+        'profile': ['Access your profile', 'Read and update your Verdant profile details.'],
+        'write:profile': ['Edit your profile', 'Update your account display name, bio, and links.'],
+        'openid': ['OpenID login', 'Verify your identity for sign-in or session creation.'],
+        'email': ['Email access', 'Read the email attached to your account.'],
+      };
+
+      const requestedScopes = (scope || '')
+        .split(/[\s,]+/)
+        .map((value) => value.trim())
+        .filter(Boolean);
+
+      const scopesContainer = document.getElementById('scopes');
+      const scopeItems = requestedScopes.length ? requestedScopes : ['read:user', 'profile'];
+
+      scopeItems.forEach((item) => {
+        const entry = scopeMap[item] || ['Access requested', 'This app is asking to use this capability during the sign-in flow.'];
+        const row = document.createElement('div');
+        row.className = 'scope-item';
+        row.innerHTML = `
+          <div class="scope-name">
+            <strong>${entry[0]}</strong>
+            <span>${entry[1]}</span>
+          </div>
+          <span class="scope-tag">${item}</span>
+        `;
+        scopesContainer.appendChild(row);
+      });
+
+      document.getElementById('clientName').textContent = displayName;
+      document.getElementById('clientSummary').textContent = `"${displayName}" is asking to use your Verdant identity for authentication.`;
+      document.getElementById('appId').textContent = clientId;
+      document.getElementById('redirectUri').textContent = redirectUri || 'Not provided';
+      document.getElementById('appAvatar').textContent = displayName.charAt(0).toUpperCase() || 'V';
+
+      const buildRedirectUrl = (error = '') => {
+        if (!redirectUri) {
+          return null;
+        }
+
+        const url = new URL(redirectUri);
+        if (error) {
+          url.searchParams.set('error', error);
+        } else {
+          url.searchParams.set('code', `verdant_${Date.now()}`);
+        }
+
+        if (state) {
+          url.searchParams.set('state', state);
+        }
+
+        return url.toString();
+      };
+
+      document.getElementById('allowBtn').addEventListener('click', () => {
+        const nextUrl = buildRedirectUrl();
+        if (nextUrl) {
+          window.location.href = nextUrl;
+          return;
+        }
+        window.alert('No redirect_uri was provided for this OAuth request.');
+      });
+
+      document.getElementById('denyBtn').addEventListener('click', () => {
+        const nextUrl = buildRedirectUrl('access_denied');
+        if (nextUrl) {
+          window.location.href = nextUrl;
+          return;
+        }
+        window.location.href = '/';
+      });
+    </script>
+  </body>
+</html>
