@@ -1,26 +1,25 @@
-const STORAGE_KEY = "verdantSocialStateV1";
-const ADMIN_CREDENTIALS = {
-  username: "verdantadmin",
-  password: "verdantstaff2024",
-};
+const STORAGE_KEY = "verdant-social-state-v1";
+const ADMIN_CREDENTIALS = { username: "verdantadmin", password: "verdantstaff2024" };
 
-const createOfficialVerdantUser = () => ({
-  id: "verdant",
-  username: "verdant",
-  handle: "@verdant",
-  displayName: "Verdant",
-  aboutMe: "Rooting community, creativity, and sustainable ideas in one place.",
-  website: "https://verdant.social",
-  profilePicture: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=400&q=80",
-  coverPhoto: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80",
-  favoriteGame: "Minecraft",
-  followers: 0,
-  following: [],
-  official: true,
-  banned: false,
-  avatarLetter: "V",
-  createdAt: new Date().toISOString(),
-});
+function createOfficialVerdantUser() {
+  return {
+    id: "verdant",
+    username: "verdant",
+    handle: "@verdant",
+    displayName: "Verdant",
+    aboutMe: "The official Verdant home for community, creativity, and thoughtful conversation.",
+    website: "https://verdant.social",
+    profilePicture: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&w=800&q=80",
+    coverPhoto: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80",
+    favoriteGame: "Minecraft",
+    followers: 0,
+    following: [],
+    official: true,
+    banned: false,
+    password: "verdantofficial",
+    createdAt: new Date().toISOString(),
+  };
+}
 
 const defaultState = {
   currentUserId: null,
@@ -28,7 +27,6 @@ const defaultState = {
   activeView: "feed",
   users: [createOfficialVerdantUser()],
   posts: [],
-  adminPanelOpen: false,
 };
 
 function loadState() {
@@ -39,8 +37,8 @@ function loadState() {
     const merged = {
       ...structuredClone(defaultState),
       ...saved,
-      users: (saved.users && saved.users.length ? saved.users : defaultState.users),
-      posts: saved.posts || [],
+      users: Array.isArray(saved.users) && saved.users.length ? saved.users : defaultState.users,
+      posts: Array.isArray(saved.posts) ? saved.posts : [],
     };
 
     if (!merged.users.some((user) => user.id === "verdant")) {
@@ -59,22 +57,35 @@ function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function findUserById(userId) {
-  return state.users.find((user) => user.id === userId) || null;
-}
-
-function findUserByUsername(usernameInput) {
-  const normalized = normalizeUsername(usernameInput);
-  return state.users.find((user) => normalizeUsername(user.username) === normalized || normalizeUsername(user.handle) === normalized);
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function normalizeUsername(value) {
   return String(value || "").trim().replace(/^@/, "").toLowerCase();
 }
 
+function findUserById(id) {
+  return state.users.find((user) => user.id === id) || null;
+}
+
+function findUserByUsername(usernameOrHandle) {
+  const normalized = normalizeUsername(usernameOrHandle);
+  return state.users.find((user) => normalizeUsername(user.username) === normalized || normalizeUsername(user.handle) === normalized) || null;
+}
+
+function getCurrentUser() {
+  return findUserById(state.currentUserId);
+}
+
 function isVerifiedUser(user) {
   if (!user) return false;
-  return user.official || user.followers >= 1000;
+  return user.official || (Number(user.followers || 0) >= 1000);
 }
 
 function getVerificationMarkup(user) {
@@ -82,22 +93,32 @@ function getVerificationMarkup(user) {
   if (user.official) {
     return '<span class="verification-badge official"><span class="leaf-icon"></span>Official</span>';
   }
-  if (user.followers >= 1000) {
+  if (Number(user.followers || 0) >= 1000) {
     return '<span class="verification-badge standard"><span class="leaf-icon"></span>Verified</span>';
   }
   return "";
 }
 
-function getCurrentUser() {
-  return findUserById(state.currentUserId);
+function formatDate(dateValue) {
+  if (!dateValue) return "just now";
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return "just now";
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function renderInlineTokens(text) {
+  const escaped = escapeHtml(text);
+  return escaped
+    .replace(/(^|\s)#([a-zA-Z0-9_]+)/g, '$1<span class="token">#$2</span>')
+    .replace(/(^|\s)@([a-zA-Z0-9_]+)/g, '$1<span class="token">@$2</span>');
 }
 
 function showToast(message) {
   const toast = document.getElementById("toast");
   toast.textContent = message;
   toast.classList.add("show");
-  window.clearTimeout(showToast.timeoutId);
-  showToast.timeoutId = window.setTimeout(() => toast.classList.remove("show"), 2200);
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
 }
 
 function setView(viewName) {
@@ -111,19 +132,20 @@ function setView(viewName) {
     panel.classList.toggle("active", panel.id === `${viewName}View`);
   });
 
-  if (viewName === "profile") renderProfile();
   if (viewName === "feed") renderFeed();
   if (viewName === "discover") renderDiscover();
+  if (viewName === "profile") renderProfile();
   if (viewName === "account") renderAccountForm();
+
   renderSidebarProfile();
 }
 
 function renderSidebarProfile() {
-  const sidebar = document.getElementById("sidebarProfile");
+  const wrapper = document.getElementById("sidebarProfile");
   const user = getCurrentUser();
 
   if (!user) {
-    sidebar.innerHTML = `
+    wrapper.innerHTML = `
       <div class="profile-topline">
         <div class="avatar">V</div>
         <div class="profile-mini-meta">
@@ -136,10 +158,10 @@ function renderSidebarProfile() {
     return;
   }
 
-  sidebar.innerHTML = `
+  wrapper.innerHTML = `
     <div class="profile-topline">
       <div class="avatar">
-        <img src="${escapeHtml(user.profilePicture || "") || ""}" alt="${escapeHtml(user.displayName)}" onerror="this.style.display='none';this.parentElement.textContent='${user.displayName.charAt(0).toUpperCase()}'" />
+        <img src="${escapeHtml(user.profilePicture || "")}" alt="${escapeHtml(user.displayName)}" onerror="this.style.display='none'; this.parentElement.textContent='${(user.displayName || "U").charAt(0).toUpperCase()}'" />
       </div>
       <div class="profile-mini-meta">
         <h3>${escapeHtml(user.displayName)}</h3>
@@ -147,22 +169,22 @@ function renderSidebarProfile() {
       </div>
     </div>
     <div class="meta-row">
-      <span>${user.followers} followers</span>
+      <span>${Number(user.followers || 0)} followers</span>
       ${getVerificationMarkup(user)}
     </div>
   `;
 }
 
 function renderVerifiedUsers() {
-  const container = document.getElementById("verifiedContainer");
-  const verifiedUsers = state.users.filter(isVerifiedUser);
+  const wrapper = document.getElementById("verifiedContainer");
+  const verified = state.users.filter(isVerifiedUser);
 
-  if (!verifiedUsers.length) {
-    container.innerHTML = '<div class="empty-state">No verified members yet.</div>';
+  if (!verified.length) {
+    wrapper.innerHTML = '<div class="empty-state">No verified members yet.</div>';
     return;
   }
 
-  container.innerHTML = verifiedUsers
+  wrapper.innerHTML = verified
     .map(
       (user) => `
         <div class="verified-item">
@@ -170,30 +192,21 @@ function renderVerifiedUsers() {
             <strong>${escapeHtml(user.displayName)}</strong>
             <small>${escapeHtml(user.handle)}</small>
           </div>
-          <button class="inline-button" data-action="open-profile" data-user-id="${user.id}" type="button">View</button>
+          <button class="inline-button" type="button" data-action="open-profile" data-user-id="${user.id}">View</button>
         </div>
       `
     )
     .join("");
 }
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
 function renderFeed() {
-  const container = document.getElementById("feedContainer");
-  const user = getCurrentUser();
-
-  document.getElementById("composerAvatar").textContent = user ? user.displayName.charAt(0).toUpperCase() : "V";
+  const wrapper = document.getElementById("feedContainer");
+  const currentUser = getCurrentUser();
+  const composerAvatar = document.getElementById("composerAvatar");
+  composerAvatar.textContent = currentUser ? currentUser.displayName.charAt(0).toUpperCase() : "V";
 
   if (!state.posts.length) {
-    container.innerHTML = `
+    wrapper.innerHTML = `
       <div class="empty-state">
         <p>No leaves yet.</p>
         <p>Start the conversation by publishing the first post.</p>
@@ -202,34 +215,34 @@ function renderFeed() {
     return;
   }
 
-  container.innerHTML = state.posts
+  wrapper.innerHTML = state.posts
     .slice()
     .reverse()
     .map((post) => {
-      const author = findUserById(post.authorId) || getCurrentUser();
-      const isLiked = user ? post.likes.includes(user.id) : false;
-      const isFollowing = user ? author && user.following.includes(author.id) : false;
+      const author = findUserById(post.authorId) || createOfficialVerdantUser();
+      const liked = !!currentUser && post.likes.includes(currentUser.id);
+      const isFollowing = !!currentUser && currentUser.following.includes(author.id);
 
       return `
         <article class="leaf-card">
           <div class="post-header">
             <div class="avatar small">
-              <img src="${escapeHtml(author?.profilePicture || "")}" alt="${escapeHtml(author?.displayName || "User")}" onerror="this.style.display='none';this.parentElement.textContent='${(author?.displayName || "U").charAt(0).toUpperCase()}'" />
+              <img src="${escapeHtml(author.profilePicture || "")}" alt="${escapeHtml(author.displayName)}" onerror="this.style.display='none'; this.parentElement.textContent='${(author.displayName || 'U').charAt(0).toUpperCase()}'" />
             </div>
             <div class="post-author-meta">
               <div class="meta-row">
-                <h3>${escapeHtml(author?.displayName || "Unknown")}</h3>
+                <h3>${escapeHtml(author.displayName)}</h3>
                 ${getVerificationMarkup(author)}
               </div>
-              <p>${escapeHtml(author?.handle || "@unknown")} • ${formatDate(post.createdAt)}</p>
+              <p>${escapeHtml(author.handle)} • ${formatDate(post.createdAt)}</p>
             </div>
-            <button class="ghost-btn" type="button" data-action="follow-user" data-user-id="${author?.id || ""}">${isFollowing ? "Following" : "Follow"}</button>
+            <button class="ghost-btn" type="button" data-action="follow-user" data-user-id="${author.id}">${isFollowing ? "Following" : "Follow"}</button>
           </div>
 
           <div class="post-body">${renderInlineTokens(post.content)}</div>
 
           <div class="post-actions">
-            <button class="action-button ${isLiked ? "is-active" : ""}" type="button" data-action="like-post" data-post-id="${post.id}">❤ ${post.likes.length}</button>
+            <button class="action-button ${liked ? "is-active" : ""}" type="button" data-action="like-post" data-post-id="${post.id}">❤ ${post.likes.length}</button>
             <button class="action-button" type="button" data-action="reply-post" data-post-id="${post.id}">↩ ${post.replies.length}</button>
             <button class="action-button" type="button" data-action="share-post" data-post-id="${post.id}">↗ ${post.shares}</button>
             <button class="action-button" type="button" data-action="open-post" data-post-id="${post.id}">Open</button>
@@ -240,17 +253,18 @@ function renderFeed() {
     .join("");
 }
 
-function renderInlineTokens(content) {
-  const escaped = escapeHtml(content);
-  return escaped
-    .replace(/(^|\s)#([a-zA-Z0-9_]+)/g, '$1<span class="token">#$2</span>')
-    .replace(/(^|\s)@([a-zA-Z0-9_]+)/g, '$1<span class="token">@$2</span>');
-}
-
 function renderDiscover() {
-  const container = document.getElementById("discoverContainer");
-  container.innerHTML = state.users
-    .filter((user) => user.id !== state.currentUserId)
+  const wrapper = document.getElementById("discoverContainer");
+  const currentUser = getCurrentUser();
+
+  const list = state.users.filter((user) => user.id !== (currentUser ? currentUser.id : ""));
+
+  if (!list.length) {
+    wrapper.innerHTML = '<div class="empty-state">No other users yet.</div>';
+    return;
+  }
+
+  wrapper.innerHTML = list
     .map(
       (user) => `
         <div class="discover-entity">
@@ -258,30 +272,31 @@ function renderDiscover() {
             <strong>${escapeHtml(user.displayName)}</strong>
             <small>${escapeHtml(user.handle)}</small>
           </div>
-          <button class="ghost-btn" type="button" data-action="open-profile" data-user-id="${user.id}">View profile</button>
+          <button class="ghost-btn" type="button" data-action="open-profile" data-user-id="${user.id}">View</button>
         </div>
       `
     )
-    .join("") || '<div class="empty-state">No other users yet.</div>';
+    .join("");
 }
 
 function renderProfile() {
-  const profileContainer = document.getElementById("profileContainer");
+  const wrapper = document.getElementById("profileContainer");
   const user = findUserById(state.selectedProfileId) || getCurrentUser() || state.users[0];
-  const isCurrentUser = user && getCurrentUser() && user.id === getCurrentUser().id;
-  const posts = state.posts.filter((post) => post.authorId === user.id);
-  const isFollowing = getCurrentUser() ? getCurrentUser().following.includes(user.id) : false;
+  const currentUser = getCurrentUser();
+  const isCurrentUser = !!currentUser && currentUser.id === user.id;
+  const isFollowing = !!currentUser && currentUser.following.includes(user.id);
+  const userPosts = state.posts.filter((post) => post.authorId === user.id);
 
-  profileContainer.innerHTML = `
+  wrapper.innerHTML = `
     <div class="profile-header">
       <div class="profile-cover">
-        <img src="${escapeHtml(user.coverPhoto || "")}" alt="${escapeHtml(user.displayName)} cover" onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg, rgba(126,197,157,0.24), rgba(45,122,89,0.34))'" />
+        <img src="${escapeHtml(user.coverPhoto || "")}" alt="${escapeHtml(user.displayName)} cover" onerror="this.style.display='none'; this.parentElement.style.background='linear-gradient(135deg, rgba(126,197,157,0.24), rgba(45,122,89,0.34))'" />
       </div>
 
       <div class="profile-header-body">
         <div class="profile-row">
           <div class="profile-picture-large">
-            <img src="${escapeHtml(user.profilePicture || "")}" alt="${escapeHtml(user.displayName)}" onerror="this.style.display='none';this.parentElement.textContent='${(user.displayName || "U").charAt(0).toUpperCase()}'" />
+            <img src="${escapeHtml(user.profilePicture || "")}" alt="${escapeHtml(user.displayName)}" onerror="this.style.display='none'; this.parentElement.textContent='${(user.displayName || 'U').charAt(0).toUpperCase()}'" />
           </div>
 
           <div class="profile-heading">
@@ -299,7 +314,7 @@ function renderProfile() {
           <div class="profile-meta-grid">
             <div class="meta-item">
               <span>Website</span>
-              <strong><a href="${escapeHtml(user.website || "#")}" target="_blank" rel="noreferrer">${escapeHtml(user.website || "Not provided")}</a></strong>
+              <strong><a href="${escapeHtml(user.website || '#')}" target="_blank" rel="noreferrer">${escapeHtml(user.website || "Not provided")}</a></strong>
             </div>
             <div class="meta-item">
               <span>Favorite game</span>
@@ -310,7 +325,7 @@ function renderProfile() {
 
         <div class="profile-cta">
           <button class="primary-btn" type="button" data-action="follow-user" data-user-id="${user.id}">${isFollowing ? "Following" : "Follow"}</button>
-          <button class="secondary-btn" type="button" data-action="open-post" data-post-id="${posts[0]?.id || ""}">${posts[0] ? "View latest" : "No posts yet"}</button>
+          <button class="secondary-btn" type="button" data-action="open-post" data-post-id="${userPosts[0]?.id || ""}">${userPosts[0] ? "View latest" : "No posts yet"}</button>
           ${isCurrentUser ? '<button class="ghost-btn" type="button" data-action="go-account">Edit account</button>' : ""}
         </div>
       </div>
@@ -325,7 +340,7 @@ function renderProfile() {
       </div>
 
       <div class="feed-container" style="margin-top: 14px;">
-        ${posts.length ? posts.slice().reverse().map((post) => `
+        ${userPosts.length ? userPosts.slice().reverse().map((post) => `
           <div class="user-row">
             <div>
               <h4>${escapeHtml(user.displayName)}</h4>
@@ -346,20 +361,13 @@ function renderAccountForm() {
     return;
   }
 
-  document.getElementById("displayNameInput").value = user.displayName;
-  document.getElementById("usernameInput").value = user.username;
+  document.getElementById("displayNameInput").value = user.displayName || "";
+  document.getElementById("usernameInput").value = user.username || "";
   document.getElementById("bioInput").value = user.aboutMe || "";
   document.getElementById("websiteInput").value = user.website || "";
   document.getElementById("favoriteGameInput").value = user.favoriteGame || "";
   document.getElementById("profilePicInput").value = user.profilePicture || "";
   document.getElementById("coverPhotoInput").value = user.coverPhoto || "";
-}
-
-function formatDate(value) {
-  if (!value) return "just now";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "just now";
-  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
 function openAuthModal(mode = "signin") {
@@ -382,19 +390,19 @@ function openPost(postId) {
   const post = state.posts.find((item) => item.id === postId);
   if (!post) return;
 
-  const author = findUserById(post.authorId);
+  const author = findUserById(post.authorId) || createOfficialVerdantUser();
   document.getElementById("postDetailBody").innerHTML = `
     <article class="leaf-card">
       <div class="post-header">
         <div class="avatar small">
-          <img src="${escapeHtml(author?.profilePicture || "")}" alt="${escapeHtml(author?.displayName || "User")}" onerror="this.style.display='none';this.parentElement.textContent='${(author?.displayName || "U").charAt(0).toUpperCase()}'" />
+          <img src="${escapeHtml(author.profilePicture || "")}" alt="${escapeHtml(author.displayName)}" onerror="this.style.display='none'; this.parentElement.textContent='${(author.displayName || 'U').charAt(0).toUpperCase()}'" />
         </div>
         <div class="post-author-meta">
           <div class="meta-row">
-            <h3>${escapeHtml(author?.displayName || "Unknown")}</h3>
+            <h3>${escapeHtml(author.displayName)}</h3>
             ${getVerificationMarkup(author)}
           </div>
-          <p>${escapeHtml(author?.handle || "@unknown")} • ${formatDate(post.createdAt)}</p>
+          <p>${escapeHtml(author.handle)} • ${formatDate(post.createdAt)}</p>
         </div>
       </div>
 
@@ -424,57 +432,54 @@ function closeAdminModal() {
 }
 
 function signInUser(usernameOrHandle, password) {
-  const account = findUserByUsername(usernameOrHandle);
-  if (!account) {
+  const user = findUserByUsername(usernameOrHandle);
+  if (!user) {
     showToast("No account with that username was found.");
     return;
   }
 
-  const existingPassword = account.password || "";
-
-  if (existingPassword !== password) {
+  if ((user.password || "") !== password) {
     showToast("Incorrect password.");
     return;
   }
 
-  state.currentUserId = account.id;
-  state.selectedProfileId = account.id;
+  state.currentUserId = user.id;
+  state.selectedProfileId = user.id;
   closeAuthModal();
   setView("feed");
   saveState();
-  showToast(`Welcome back, ${account.displayName}`);
+  showToast(`Welcome back, ${user.displayName}`);
 }
 
-function createAccount(payload) {
-  const username = normalizeUsername(payload.username);
-  const displayName = (payload.displayName || "").trim();
+function createAccount({ displayName, username, password, aboutMe, website, favoriteGame, profilePicture, coverPhoto }) {
+  const trimmedDisplayName = String(displayName || "").trim();
+  const trimmedUsername = normalizeUsername(username);
 
-  if (!displayName || !username || !payload.password) {
+  if (!trimmedDisplayName || !trimmedUsername || !password) {
     showToast("Display name, username, and password are required.");
     return;
   }
 
-  if (findUserByUsername(username)) {
+  if (findUserByUsername(trimmedUsername)) {
     showToast("That username already exists.");
     return;
   }
 
   const user = {
     id: `user-${Date.now()}`,
-    username,
-    handle: `@${username}`,
-    displayName,
-    aboutMe: payload.aboutMe || "",
-    website: payload.website || "",
-    profilePicture: payload.profilePicture || "",
-    coverPhoto: payload.coverPhoto || "",
-    favoriteGame: payload.favoriteGame || "",
+    username: trimmedUsername,
+    handle: `@${trimmedUsername}`,
+    displayName: trimmedDisplayName,
+    aboutMe: String(aboutMe || "").trim(),
+    website: String(website || "").trim(),
+    favoriteGame: String(favoriteGame || "").trim(),
+    profilePicture: String(profilePicture || "").trim(),
+    coverPhoto: String(coverPhoto || "").trim(),
     followers: 0,
     following: [],
     official: false,
     banned: false,
-    avatarLetter: displayName.charAt(0).toUpperCase() || "U",
-    password: payload.password,
+    password: String(password),
     createdAt: new Date().toISOString(),
   };
 
@@ -495,18 +500,18 @@ function githubSignIn() {
     displayName: "GitHub User",
     aboutMe: "Open-source creator building community tools.",
     website: "",
+    favoriteGame: "Factorio",
     profilePicture: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=400&q=80",
     coverPhoto: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80",
-    favoriteGame: "Factorio",
     followers: 0,
     following: [],
     official: false,
     banned: false,
-    avatarLetter: "G",
+    password: "github",
     createdAt: new Date().toISOString(),
   };
 
-  if (!state.users.some((item) => item.id === "github-user")) {
+  if (!state.users.some((entry) => entry.id === "github-user")) {
     state.users.push(user);
   }
 
@@ -527,14 +532,14 @@ function saveAccountChanges(event) {
     return;
   }
 
-  const username = normalizeUsername(document.getElementById("usernameInput").value);
-  if (username && username !== normalizeUsername(user.username) && findUserByUsername(username)) {
+  const nextUsername = normalizeUsername(document.getElementById("usernameInput").value);
+  if (nextUsername && nextUsername !== normalizeUsername(user.username) && findUserByUsername(nextUsername)) {
     showToast("That username is already in use.");
     return;
   }
 
   user.displayName = document.getElementById("displayNameInput").value.trim() || user.displayName;
-  user.username = username || user.username;
+  user.username = nextUsername || user.username;
   user.handle = `@${user.username}`;
   user.aboutMe = document.getElementById("bioInput").value.trim();
   user.website = document.getElementById("websiteInput").value.trim();
@@ -563,7 +568,6 @@ function deleteCurrentAccount() {
   state.selectedProfileId = "verdant";
   saveState();
   setView("feed");
-  closeAuthModal();
   showToast("Account deleted.");
 }
 
@@ -613,7 +617,6 @@ function likePost(postId) {
 
   saveState();
   renderFeed();
-  if (document.getElementById("postModal").classList.contains("hidden") === false) openPost(postId);
 }
 
 function sharePost(postId) {
@@ -643,13 +646,13 @@ function replyToPost(postId) {
 function publishLeaf() {
   const composer = document.getElementById("leafComposer");
   const content = composer.value.trim();
+  const currentUser = getCurrentUser();
 
   if (!content) {
     showToast("Write a message before publishing.");
     return;
   }
 
-  const currentUser = getCurrentUser();
   if (!currentUser) {
     openAuthModal("signin");
     showToast("Sign in to publish a leaf.");
@@ -661,7 +664,7 @@ function publishLeaf() {
     return;
   }
 
-  const post = {
+  state.posts.push({
     id: `leaf-${Date.now()}`,
     authorId: currentUser.id,
     content,
@@ -669,9 +672,8 @@ function publishLeaf() {
     likes: [],
     replies: [],
     shares: 0,
-  };
+  });
 
-  state.posts.push(post);
   composer.value = "";
   saveState();
   renderFeed();
@@ -679,35 +681,18 @@ function publishLeaf() {
   showToast("Leaf published.");
 }
 
-function injectComposerToken(symbol) {
+function injectToken(token) {
   const composer = document.getElementById("leafComposer");
   const start = composer.selectionStart;
   const end = composer.selectionEnd;
-  const value = composer.value;
-  composer.value = value.slice(0, start) + symbol + value.slice(end);
+  composer.value = composer.value.slice(0, start) + token + composer.value.slice(end);
   composer.focus();
   composer.setSelectionRange(start + 1, start + 1);
 }
 
-function handleAdminLogin(event) {
-  event.preventDefault();
-  const username = document.getElementById("adminUsername").value.trim();
-  const password = document.getElementById("adminPassword").value;
-
-  if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-    state.adminPanelOpen = true;
-    renderAdminPanel();
-    document.getElementById("adminLoginForm").classList.add("hidden");
-    document.getElementById("adminPanel").classList.remove("hidden");
-    showToast("Welcome to the staff backend.");
-  } else {
-    showToast("Invalid admin credentials.");
-  }
-}
-
 function renderAdminPanel() {
-  const adminList = document.getElementById("adminUserList");
-  adminList.innerHTML = state.users
+  const wrapper = document.getElementById("adminUserList");
+  wrapper.innerHTML = state.users
     .map(
       (user) => `
         <div class="admin-user">
@@ -726,38 +711,55 @@ function renderAdminPanel() {
     .join("");
 }
 
+function handleAdminLogin(event) {
+  event.preventDefault();
+  const username = document.getElementById("adminUsername").value.trim();
+  const password = document.getElementById("adminPassword").value;
+
+  if (username !== ADMIN_CREDENTIALS.username || password !== ADMIN_CREDENTIALS.password) {
+    showToast("Invalid admin credentials.");
+    return;
+  }
+
+  document.getElementById("adminLoginForm").classList.add("hidden");
+  document.getElementById("adminPanel").classList.remove("hidden");
+  renderAdminPanel();
+  showToast("Welcome to the staff backend.");
+}
+
 function toggleBanUser(userId) {
   const user = findUserById(userId);
   if (!user) return;
+
   user.banned = !user.banned;
   saveState();
   renderAdminPanel();
-  renderFeed();
-  renderDiscover();
   showToast(user.banned ? `${user.displayName} is banned.` : `${user.displayName} is unbanned.`);
 }
 
 function toggleOfficialVerification(userId) {
   const user = findUserById(userId);
   if (!user) return;
+
   user.official = !user.official;
   saveState();
   renderAdminPanel();
   renderFeed();
   renderProfile();
   renderVerifiedUsers();
+  renderSidebarProfile();
   showToast(user.official ? `${user.displayName} has official verification.` : `${user.displayName} lost official verification.`);
 }
 
-function initializeEvents() {
+function bindEvents() {
   document.getElementById("signInButton").addEventListener("click", () => openAuthModal("signin"));
   document.getElementById("createAccountButton").addEventListener("click", () => openAuthModal("signup"));
   document.getElementById("publishLeaf").addEventListener("click", publishLeaf);
-  document.getElementById("accountForm").addEventListener("submit", saveAccountChanges);
   document.getElementById("signinForm").addEventListener("submit", (event) => {
     event.preventDefault();
     signInUser(document.getElementById("signinUsername").value, document.getElementById("signinPassword").value);
   });
+
   document.getElementById("signupForm").addEventListener("submit", (event) => {
     event.preventDefault();
     createAccount({
@@ -771,37 +773,45 @@ function initializeEvents() {
       coverPhoto: document.getElementById("signupCoverPhoto").value,
     });
   });
+
+  document.getElementById("accountForm").addEventListener("submit", saveAccountChanges);
   document.getElementById("adminLoginForm").addEventListener("submit", handleAdminLogin);
 
-  document.addEventListener("click", (event) => {
-    const actionTarget = event.target.closest("[data-action]");
-    if (!actionTarget) return;
+  document.querySelectorAll(".auth-tab").forEach((button) => {
+    button.addEventListener("click", () => openAuthModal(button.dataset.authMode));
+  });
 
-    const { action, userId, postId, view, authMode, insert } = actionTarget.dataset;
+  document.querySelectorAll(".token-btn").forEach((button) => {
+    button.addEventListener("click", () => injectToken(button.dataset.token));
+  });
+
+  document.addEventListener("click", (event) => {
+    const target = event.target.closest("[data-action]");
+    if (!target) return;
+
+    const action = target.dataset.action;
+    const userId = target.dataset.userId;
+    const postId = target.dataset.postId;
+    const view = target.dataset.view;
+
     if (view) setView(view);
     if (action === "close-auth") closeAuthModal();
     if (action === "close-post") closePostModal();
     if (action === "close-admin") closeAdminModal();
-    if (authMode) openAuthModal(authMode);
     if (action === "github-signin") githubSignIn();
+    if (action === "go-account") setView("account");
+    if (action === "delete-account") deleteCurrentAccount();
     if (action === "open-profile") {
       state.selectedProfileId = userId;
       setView("profile");
     }
-    if (action === "go-account") setView("account");
-    if (action === "delete-account") deleteCurrentAccount();
+    if (action === "open-post") openPost(postId);
     if (action === "follow-user") toggleFollowUser(userId);
     if (action === "like-post") likePost(postId);
     if (action === "reply-post") replyToPost(postId);
     if (action === "share-post") sharePost(postId);
-    if (action === "open-post") openPost(postId);
     if (action === "toggle-ban") toggleBanUser(userId);
     if (action === "toggle-official") toggleOfficialVerification(userId);
-    if (insert) injectComposerToken(insert);
-  });
-
-  document.querySelectorAll(".token-btn").forEach((button) => {
-    button.addEventListener("click", () => injectComposerToken(button.dataset.insert));
   });
 
   document.addEventListener("keydown", (event) => {
@@ -813,7 +823,7 @@ function initializeEvents() {
 }
 
 function boot() {
-  initializeEvents();
+  bindEvents();
   renderFeed();
   renderDiscover();
   renderVerifiedUsers();
@@ -824,8 +834,8 @@ function boot() {
 }
 
 boot();
+window.addEventListener("beforeunload", saveState);
 
-window.addEventListener("beforeunload", () => saveState());
 
 
 
@@ -1175,3 +1185,249 @@ window.addEventListener("beforeunload", () => saveState());
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+n
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+y
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"}]},

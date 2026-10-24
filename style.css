@@ -6,7 +6,7 @@
     <title>Verdant Social</title>
     <meta
       name="description"
-      content="Verdant Social is a modern, real identity social platform for community, creativity, and conversation."
+      content="Verdant Social is the clean, real-identity social platform for creators, communities, and thoughtful conversations."
     />
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -57,7 +57,7 @@
           <section id="feedView" class="view-panel active">
             <div class="composer-card">
               <div class="composer-header">
-                <div class="avatar small" id="composerAvatar">V</div>
+                <div id="composerAvatar" class="avatar small">V</div>
                 <div>
                   <p class="section-label">Share your next thought</p>
                   <h2>New Leaf</h2>
@@ -68,8 +68,8 @@
 
               <div class="composer-tools">
                 <div class="token-buttons">
-                  <button type="button" class="token-btn" data-insert="#">#</button>
-                  <button type="button" class="token-btn" data-insert="@">@</button>
+                  <button type="button" class="token-btn" data-token="#">#</button>
+                  <button type="button" class="token-btn" data-token="@">@</button>
                 </div>
 
                 <button id="publishLeaf" class="primary-btn" type="button">Publish</button>
@@ -215,12 +215,12 @@
           <form id="signupForm" class="stack-form">
             <label>
               <span>Display name</span>
-              <input id="signupDisplayName" type="text" name="displayName" placeholder="Your name" maxlength="64" required />
+              <input id="signupDisplayName" type="text" name="displayName" maxlength="64" placeholder="Your name" required />
             </label>
 
             <label>
               <span>Username</span>
-              <input id="signupUsername" type="text" name="username" placeholder="yourname" maxlength="32" required />
+              <input id="signupUsername" type="text" name="username" maxlength="32" placeholder="yourname" required />
             </label>
 
             <label>
@@ -301,3 +301,113 @@
     <script src="script.js"></script>
   </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
