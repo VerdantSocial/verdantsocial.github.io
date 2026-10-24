@@ -1,23 +1,192 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-
-    <meta charset="UTF-8"> 
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Verdant Social</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="sidebar left-panel">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">
+            <span class="leaf-shadow"></span>
+          </div>
+          <div>
+            <p class="brand-kicker">Verdant</p>
+            <h1>Social</h1>
+          </div>
+        </div>
 
-<body> 
-    
-    <h1>Verdant Social</h1>
-    <h2>The all new open-source social media</h2>
+        <nav class="side-nav" aria-label="Main navigation">
+          <button class="nav-btn active" data-view="feed" data-action="set-view">Home</button>
+          <button class="nav-btn" data-view="profile" data-action="set-view">Profile</button>
+          <button class="nav-btn" data-view="account" data-action="set-view">Account</button>
+        </nav>
 
+        <section class="compose-card">
+          <h2>New Leaf</h2>
+          <textarea id="leafComposer" rows="4" placeholder="Share a fresh idea with the grove..."></textarea>
+          <div class="compose-actions">
+            <span class="muted-meta">Public</span>
+            <button id="publishLeaf" class="primary-btn" type="button">Publish Leaf</button>
+          </div>
+        </section>
+      </aside>
 
-    <p>Coming 2028</p>
-    <p>Coding in progress</p>
- 
-    <footer>
-        <p>&copy; <span id="current-year"></span> Verdant Social </p>
-    </footer>
-</body>
-</html> 
+      <main class="main-panel">
+        <header class="topbar">
+          <div class="topbar-search">
+            <span class="search-icon">⌕</span>
+            <input type="text" value="Find people, leaves, and topics" aria-label="Search" />
+          </div>
+          <div class="topbar-actions">
+            <button class="ghost-btn" type="button" data-action="open-signin">Sign in</button>
+            <button class="primary-btn" type="button" data-action="set-view" data-view="profile">Profile</button>
+          </div>
+        </header>
+
+        <section id="feedView" class="view-panel active" aria-label="Feed view">
+          <div class="feed-header">
+            <div>
+              <p class="eyebrow">For your grove</p>
+              <h2>Latest Leaves</h2>
+            </div>
+            <button class="chip-btn" type="button">Fresh</button>
+          </div>
+          <div id="feedContainer"></div>
+        </section>
+
+        <section id="profileView" class="view-panel" aria-label="Profile view">
+          <div id="profileContainer"></div>
+        </section>
+
+        <section id="accountView" class="view-panel" aria-label="Account view">
+          <div class="section-card">
+            <div class="card-heading">
+              <div>
+                <p class="eyebrow">Account</p>
+                <h2>Manage your profile</h2>
+              </div>
+            </div>
+
+            <form id="accountForm" class="account-form">
+              <label>
+                <span>Display name</span>
+                <input id="accountName" type="text" name="name" />
+              </label>
+              <label>
+                <span>Username</span>
+                <input id="accountHandle" type="text" name="handle" />
+              </label>
+              <label>
+                <span>Bio</span>
+                <textarea id="accountBio" rows="4" name="bio"></textarea>
+              </label>
+              <label>
+                <span>Password</span>
+                <input id="accountPassword" type="password" name="password" placeholder="••••••••" />
+              </label>
+
+              <div class="button-row">
+                <button class="primary-btn" type="submit">Save changes</button>
+                <button class="danger-btn" type="button" data-action="delete-account">Delete account</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <aside class="sidebar right-panel">
+        <div class="mini-card">
+          <p class="eyebrow">Verified voices</p>
+          <div id="verifiedUsers"></div>
+        </div>
+
+        <div class="mini-card trending-card">
+          <p class="eyebrow">Trending in Verdant</p>
+          <ul>
+            <li>#LeafMakers</li>
+            <li>#CommunityGrowth</li>
+            <li>#GreenIdeas</li>
+            <li>#OpenSource</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <div id="authModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="modal-card auth-card">
+        <div class="modal-header">
+          <div class="brand-pill">
+            <span class="mini-leaf"></span>
+            <span>Verdant</span>
+          </div>
+          <button class="close-btn" type="button" data-action="close-auth">×</button>
+        </div>
+
+        <h2 id="authTitle">Welcome back</h2>
+        <p class="modal-subtitle">Sign in and rejoin the grove.</p>
+
+        <form id="authForm">
+          <label>
+            <span>Username</span>
+            <input id="authUsername" type="text" placeholder="yourname" />
+          </label>
+          <label>
+            <span>Password</span>
+            <input id="authPassword" type="password" placeholder="••••••••" />
+          </label>
+          <button class="primary-btn full-width" type="submit">Sign in</button>
+        </form>
+
+        <button class="ghost-btn full-width github-btn" type="button" data-action="github-signin">
+          Sign in with GitHub
+        </button>
+      </div>
+    </div>
+
+    <div id="postModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="postDetailTitle">
+      <div class="modal-card post-card">
+        <div class="modal-header">
+          <h2 id="postDetailTitle">Leaf detail</h2>
+          <button class="close-btn" type="button" data-action="close-post">×</button>
+        </div>
+        <div id="postDetailBody"></div>
+      </div>
+    </div>
+
+    <div id="adminModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+      <div class="modal-card admin-card">
+        <div class="modal-header">
+          <h2 id="adminTitle">Staff backend</h2>
+          <button class="close-btn" type="button" data-action="close-admin">×</button>
+        </div>
+
+        <form id="adminLoginForm" class="admin-login-form">
+          <label>
+            <span>Username</span>
+            <input id="adminUsername" type="text" placeholder="admin user" />
+          </label>
+          <label>
+            <span>Password</span>
+            <input id="adminPassword" type="password" placeholder="••••••••" />
+          </label>
+          <button class="primary-btn full-width" type="submit">Open admin panel</button>
+        </form>
+
+        <div id="adminPanel" class="admin-panel hidden">
+          <div class="panel-header">
+            <h3>Member controls</h3>
+          </div>
+          <div id="adminUserList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
