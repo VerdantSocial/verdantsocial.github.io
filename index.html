@@ -3,183 +3,298 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Verdant Social is a modern community-first platform for open conversations, creators, and real identities."
+    />
     <title>Verdant Social</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="page-shell">
-      <aside class="sidebar left-panel">
-        <div class="brand-block">
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-wrap" aria-label="Verdant home">
           <div class="brand-mark" aria-hidden="true">
-            <span class="leaf-shadow"></span>
+            <span class="brand-mark-inner"></span>
           </div>
           <div>
-            <p class="brand-kicker">Verdant</p>
-            <h1>Social</h1>
+            <div class="brand-kicker">Verdant</div>
+            <strong>Social</strong>
           </div>
         </div>
 
-        <nav class="side-nav" aria-label="Main navigation">
-          <button class="nav-btn active" data-view="feed" data-action="set-view">Home</button>
-          <button class="nav-btn" data-view="profile" data-action="set-view">Profile</button>
-          <button class="nav-btn" data-view="account" data-action="set-view">Account</button>
+        <nav class="main-nav" aria-label="Main navigation">
+          <button class="nav-btn active" type="button" data-view="feed">Home</button>
+          <button class="nav-btn" type="button" data-view="discover">Discover</button>
+          <button class="nav-btn" type="button" data-view="profile">Profile</button>
+          <button class="nav-btn" type="button" data-view="account">Account</button>
         </nav>
 
-        <section class="compose-card">
-          <h2>New Leaf</h2>
-          <textarea id="leafComposer" rows="4" placeholder="Share a fresh idea with the grove..."></textarea>
-          <div class="compose-actions">
-            <span class="muted-meta">Public</span>
-            <button id="publishLeaf" class="primary-btn" type="button">Publish Leaf</button>
-          </div>
-        </section>
-      </aside>
-
-      <main class="main-panel">
-        <header class="topbar">
-          <div class="topbar-search">
+        <div class="header-actions">
+          <label class="search-shell" aria-label="Search Verdant">
             <span class="search-icon">⌕</span>
-            <input type="text" value="Find people, leaves, and topics" aria-label="Search" />
-          </div>
-          <div class="topbar-actions">
-            <button class="ghost-btn" type="button" data-action="open-signin">Sign in</button>
-            <button class="primary-btn" type="button" data-action="set-view" data-view="profile">Profile</button>
-          </div>
-        </header>
+            <input id="globalSearch" type="text" placeholder="Search leaves and people" />
+          </label>
+          <button id="signInButton" class="ghost-btn" type="button">Sign in</button>
+          <button id="createAccountButton" class="primary-btn" type="button">Create account</button>
+        </div>
+      </header>
 
-        <section id="feedView" class="view-panel active" aria-label="Feed view">
-          <div class="feed-header">
-            <div>
-              <p class="eyebrow">For your grove</p>
-              <h2>Latest Leaves</h2>
-            </div>
-            <button class="chip-btn" type="button">Fresh</button>
-          </div>
-          <div id="feedContainer"></div>
-        </section>
+      <main class="layout-grid">
+        <aside class="sidebar left-sidebar">
+          <section class="profile-preview-card">
+            <div id="sidebarProfile" class="profile-mini"></div>
+          </section>
 
-        <section id="profileView" class="view-panel" aria-label="Profile view">
-          <div id="profileContainer"></div>
-        </section>
+          <section class="side-panel">
+            <p class="section-label">Trending</p>
+            <ul class="trend-list">
+              <li>#verdant</li>
+              <li>#community</li>
+              <li>#greenliving</li>
+              <li>#open-source</li>
+            </ul>
+          </section>
+        </aside>
 
-        <section id="accountView" class="view-panel" aria-label="Account view">
-          <div class="section-card">
-            <div class="card-heading">
-              <div>
-                <p class="eyebrow">Account</p>
-                <h2>Manage your profile</h2>
+        <section class="center-column">
+          <section id="feedView" class="view-panel active" aria-label="Feed view">
+            <div class="composer-card">
+              <div class="composer-header">
+                <div class="avatar small" id="composerAvatar">V</div>
+                <div>
+                  <p class="section-label">Share your next thought</p>
+                  <h2>New Leaf</h2>
+                </div>
+              </div>
+
+              <textarea id="leafComposer" rows="5" placeholder="Write something. You can use #hashtags and @mentions."></textarea>
+
+              <div class="composer-tools">
+                <div class="token-buttons" aria-label="Quick insert">
+                  <button type="button" class="token-btn" data-insert="#">#</button>
+                  <button type="button" class="token-btn" data-insert="@">@</button>
+                </div>
+
+                <button id="publishLeaf" class="primary-btn" type="button">Publish</button>
               </div>
             </div>
 
-            <form id="accountForm" class="account-form">
-              <label>
-                <span>Display name</span>
-                <input id="accountName" type="text" name="name" />
-              </label>
-              <label>
-                <span>Username</span>
-                <input id="accountHandle" type="text" name="handle" />
-              </label>
-              <label>
-                <span>Bio</span>
-                <textarea id="accountBio" rows="4" name="bio"></textarea>
-              </label>
-              <label>
-                <span>Password</span>
-                <input id="accountPassword" type="password" name="password" placeholder="••••••••" />
-              </label>
+            <div id="feedContainer" class="feed-container"></div>
+          </section>
 
-              <div class="button-row">
-                <button class="primary-btn" type="submit">Save changes</button>
-                <button class="danger-btn" type="button" data-action="delete-account">Delete account</button>
+          <section id="discoverView" class="view-panel" aria-label="Discover view">
+            <div class="panel-card">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-label">Explore</p>
+                  <h2>Find voices and ideas</h2>
+                </div>
               </div>
-            </form>
-          </div>
+
+              <div id="discoverContainer" class="discover-list"></div>
+            </div>
+          </section>
+
+          <section id="profileView" class="view-panel" aria-label="Profile view">
+            <div id="profileContainer"></div>
+          </section>
+
+          <section id="accountView" class="view-panel" aria-label="Account view">
+            <div class="panel-card">
+              <div class="panel-heading">
+                <div>
+                  <p class="section-label">Account</p>
+                  <h2>Update your profile</h2>
+                </div>
+              </div>
+
+              <form id="accountForm" class="account-form">
+                <div class="form-grid two-col">
+                  <label>
+                    <span>Display name</span>
+                    <input id="displayNameInput" name="displayName" type="text" maxlength="64" />
+                  </label>
+
+                  <label>
+                    <span>Username</span>
+                    <input id="usernameInput" name="username" type="text" maxlength="32" />
+                  </label>
+                </div>
+
+                <label>
+                  <span>About me</span>
+                  <textarea id="bioInput" name="bio" rows="4" maxlength="220"></textarea>
+                </label>
+
+                <div class="form-grid two-col">
+                  <label>
+                    <span>Website</span>
+                    <input id="websiteInput" name="website" type="url" placeholder="https://example.com" />
+                  </label>
+
+                  <label>
+                    <span>Favorite game</span>
+                    <input id="favoriteGameInput" name="favoriteGame" type="text" maxlength="60" />
+                  </label>
+                </div>
+
+                <div class="form-grid two-col">
+                  <label>
+                    <span>Profile picture URL</span>
+                    <input id="profilePicInput" name="profilePicture" type="url" placeholder="https://..." />
+                  </label>
+
+                  <label>
+                    <span>Cover photo URL</span>
+                    <input id="coverPhotoInput" name="coverPhoto" type="url" placeholder="https://..." />
+                  </label>
+                </div>
+
+                <div class="button-row">
+                  <button class="primary-btn" type="submit">Save profile</button>
+                  <button class="danger-btn" type="button" data-action="delete-account">Delete account</button>
+                </div>
+              </form>
+            </div>
+          </section>
         </section>
+
+        <aside class="sidebar right-sidebar">
+          <section class="side-panel">
+            <p class="section-label">Verified</p>
+            <div id="verifiedContainer" class="verified-list"></div>
+          </section>
+
+          <section class="side-panel">
+            <p class="section-label">Community</p>
+            <ul class="mini-list">
+              <li>Open conversations</li>
+              <li>Creator-friendly</li>
+              <li>Real identities</li>
+              <li>Safer moderation</li>
+            </ul>
+          </section>
+        </aside>
       </main>
-
-      <aside class="sidebar right-panel">
-        <div class="mini-card">
-          <p class="eyebrow">Verified voices</p>
-          <div id="verifiedUsers"></div>
-        </div>
-
-        <div class="mini-card trending-card">
-          <p class="eyebrow">Trending in Verdant</p>
-          <ul>
-            <li>#LeafMakers</li>
-            <li>#CommunityGrowth</li>
-            <li>#GreenIdeas</li>
-            <li>#OpenSource</li>
-          </ul>
-        </div>
-      </aside>
     </div>
 
-    <div id="authModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div id="authModal" class="modal-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="authTitle">
       <div class="modal-card auth-card">
         <div class="modal-header">
-          <div class="brand-pill">
-            <span class="mini-leaf"></span>
+          <div class="brand-panel">
+            <div class="brand-mark small-mark"><span class="brand-mark-inner"></span></div>
             <span>Verdant</span>
           </div>
-          <button class="close-btn" type="button" data-action="close-auth">×</button>
+          <button class="close-btn" type="button" data-action="close-auth" aria-label="Close sign in">×</button>
         </div>
 
-        <h2 id="authTitle">Welcome back</h2>
-        <p class="modal-subtitle">Sign in and rejoin the grove.</p>
+        <div class="auth-tabs" aria-label="Authentication tabs">
+          <button class="auth-tab active" type="button" data-auth-mode="signin">Sign in</button>
+          <button class="auth-tab" type="button" data-auth-mode="signup">Create account</button>
+        </div>
 
-        <form id="authForm">
-          <label>
-            <span>Username</span>
-            <input id="authUsername" type="text" placeholder="yourname" />
-          </label>
-          <label>
-            <span>Password</span>
-            <input id="authPassword" type="password" placeholder="••••••••" />
-          </label>
-          <button class="primary-btn full-width" type="submit">Sign in</button>
-        </form>
+        <section id="signinPanel" class="auth-panel active">
+          <h2 id="authTitle">Welcome back</h2>
 
-        <button class="ghost-btn full-width github-btn" type="button" data-action="github-signin">
-          Sign in with GitHub
-        </button>
+          <form id="signinForm" class="stack-form">
+            <label>
+              <span>Username</span>
+              <input id="signinUsername" type="text" name="username" placeholder="@yourname" />
+            </label>
+
+            <label>
+              <span>Password</span>
+              <input id="signinPassword" type="password" name="password" placeholder="Enter your password" />
+            </label>
+
+            <button class="primary-btn full-width" type="submit">Sign in</button>
+          </form>
+
+          <button class="secondary-btn full-width" type="button" data-action="github-signin">Sign in with GitHub</button>
+        </section>
+
+        <section id="signupPanel" class="auth-panel">
+          <h2>Create your account</h2>
+          <form id="signupForm" class="stack-form">
+            <label>
+              <span>Display name</span>
+              <input id="signupDisplayName" type="text" name="displayName" placeholder="Your name" maxlength="64" required />
+            </label>
+
+            <label>
+              <span>Username</span>
+              <input id="signupUsername" type="text" name="username" placeholder="yourname" maxlength="32" required />
+            </label>
+
+            <label>
+              <span>About me</span>
+              <textarea id="signupBio" name="bio" rows="3" maxlength="220" placeholder="Tell the community about you."></textarea>
+            </label>
+
+            <label>
+              <span>Website</span>
+              <input id="signupWebsite" type="url" name="website" placeholder="https://example.com" />
+            </label>
+
+            <label>
+              <span>Favorite game</span>
+              <input id="signupFavoriteGame" type="text" name="favoriteGame" maxlength="60" placeholder="Minecraft, Valorant, etc." />
+            </label>
+
+            <label>
+              <span>Profile picture URL</span>
+              <input id="signupProfilePicture" type="url" name="profileImage" placeholder="https://..." />
+            </label>
+
+            <label>
+              <span>Cover photo URL</span>
+              <input id="signupCoverPhoto" type="url" name="coverPhoto" placeholder="https://..." />
+            </label>
+
+            <label>
+              <span>Password</span>
+              <input id="signupPassword" type="password" name="password" placeholder="Choose a secure password" required />
+            </label>
+
+            <button class="primary-btn full-width" type="submit">Create account</button>
+          </form>
+        </section>
       </div>
     </div>
 
-    <div id="postModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="postDetailTitle">
+    <div id="postModal" class="modal-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="postModalTitle">
       <div class="modal-card post-card">
         <div class="modal-header">
-          <h2 id="postDetailTitle">Leaf detail</h2>
-          <button class="close-btn" type="button" data-action="close-post">×</button>
+          <h2 id="postModalTitle">Leaf detail</h2>
+          <button class="close-btn" type="button" data-action="close-post" aria-label="Close leaf detail">×</button>
         </div>
         <div id="postDetailBody"></div>
       </div>
     </div>
 
-    <div id="adminModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+    <div id="adminModal" class="modal-overlay hidden" aria-modal="true" role="dialog" aria-labelledby="adminTitle">
       <div class="modal-card admin-card">
         <div class="modal-header">
           <h2 id="adminTitle">Staff backend</h2>
-          <button class="close-btn" type="button" data-action="close-admin">×</button>
+          <button class="close-btn" type="button" data-action="close-admin" aria-label="Close admin">×</button>
         </div>
 
-        <form id="adminLoginForm" class="admin-login-form">
+        <form id="adminLoginForm" class="stack-form">
           <label>
             <span>Username</span>
-            <input id="adminUsername" type="text" placeholder="admin user" />
+            <input id="adminUsername" type="text" placeholder="staff username" />
           </label>
+
           <label>
             <span>Password</span>
-            <input id="adminPassword" type="password" placeholder="••••••••" />
+            <input id="adminPassword" type="password" placeholder="staff password" />
           </label>
+
           <button class="primary-btn full-width" type="submit">Open admin panel</button>
         </form>
 
         <div id="adminPanel" class="admin-panel hidden">
-          <div class="panel-header">
-            <h3>Member controls</h3>
-          </div>
           <div id="adminUserList"></div>
         </div>
       </div>
